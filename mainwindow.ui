@@ -14,6 +14,12 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <widget class="QWidget" name="horizontalLayoutWidget">
     <property name="geometry">
      <rect>
@@ -23,9 +29,18 @@
       <height>591</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,1">
+    <layout class="QHBoxLayout" name="horizontalLayout">
      <property name="leftMargin">
-      <number>10</number>
+      <number>20</number>
+     </property>
+     <property name="topMargin">
+      <number>20</number>
+     </property>
+     <property name="rightMargin">
+      <number>20</number>
+     </property>
+     <property name="bottomMargin">
+      <number>20</number>
      </property>
      <item>
       <layout class="QVBoxLayout" name="verticalLayout">
@@ -75,7 +90,7 @@
          <item row="1" column="0">
           <widget class="QLabel" name="label_2">
            <property name="text">
-            <string>Max Height (z)</string>
+            <string>Max Z Height (mm)</string>
            </property>
           </widget>
          </item>
@@ -119,7 +134,11 @@
       </layout>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="imgLayout"/>
+      <layout class="QVBoxLayout" name="imgLayout">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetFixedSize</enum>
+       </property>
+      </layout>
      </item>
     </layout>
    </widget>
