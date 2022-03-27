@@ -17,6 +17,13 @@ class ApplicationWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self._img = None
+        self._heights = None
+        self._vectors = None
+        self._faces = None
+        self._max_height = 3
+        self._max_size = 100
+
         ui_file = QFile('mainwindow.ui')
         ui_file.open(QFile.ReadOnly)
         self._main = uic.loadUi(ui_file, self)
@@ -28,18 +35,9 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         #
         self.process_image("C:/Cloud/Google/Fab/Artwork/nsfw.png")
         self.imgLayout = self._main.imgLayout
-        # scale = 330 / img.width
-        # img = ImageOps.scale(img, scale, True)
-        # dpi = img.info['dpi']
         fig = Figure(figsize=(self._img.width, self._img.height))
         fig.figimage(self._img, cmap='gray')
         static_canvas = FigureCanvas(fig)
-        # # Ideally one would use self.addToolBar here, but it is slightly
-        # # incompatible between PyQt6 and other bindings, so we just add the
-        # # toolbar as a plain widget instead.
-        # # layout.addWidget(NavigationToolbar(static_canvas, self))
-        # layout.addWidget(static_canvas)
-        # self._main.imgLayout.addWidget(NavigationToolbar(static_canvas, self))
         self._main.imgLayout.addWidget(static_canvas)
         #
         # dynamic_canvas = FigureCanvas(Figure(figsize=(5, 3)))
@@ -67,14 +65,18 @@ class ApplicationWindow(QtWidgets.QMainWindow):
     def process_image(self, filename):
         self._img = Image.open(filename)
         gray = ImageOps.grayscale(self._img)
-        self._heights = matplotlib.image.pil_to_array(gray) / np.max(gray)
+        scale = self._max_size / max(self._img.width, self._img.height)
+        gray = ImageOps.scale(gray, scale, True)
+        self._heights = (matplotlib.image.pil_to_array(gray) / np.max(gray)) * self._max_height
+        self.get_vectors()
 
-    def _to_gray_scale(self, img: Image):
-        # r, g, b = img[:, :, 0], img[:, :, 1], img[:, :, 2]
-        # gray = 0.2989 * r + 0.5870 * g + 0.1140 * b
-        # return gray
-        result = ImageOps.grayscale(img)
-        return result
+    def get_vectors(self):
+        height_index = 0
+        self._vectors = np.zeros((self._heights.size, 3), np.dtype(np.float64, (3,)))
+        for x in range(self._heights.shape[0]):
+            for y in range(self._heights.shape[1]):
+                self._vectors[height_index] = (x, y, self._heights[x][y])
+                height_index += 1
 
 
 if __name__ == "__main__":
