@@ -48,8 +48,8 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         axes.add_collection3d(mplot3d.art3d.Poly3DCollection(self._model.vectors))
 
         # Auto scale to the mesh size
-        scale = self._model.points.flatten(-1)
-        axes.auto_scale_xyz(scale, scale, scale)
+        # scale = self._model.points.flatten(-1)
+        # axes.auto_scale_xyz(scale, scale, scale)
 
         # Show the plot to the screen
         pyplot.show()
@@ -88,20 +88,20 @@ class ApplicationWindow(QtWidgets.QMainWindow):
 
         # Create the mesh
         self._model = mesh.Mesh(np.zeros(len(self._faces), dtype=mesh.Mesh.dtype))
-        for i, f in enumerate(self._vectors):
+        for i, f in enumerate(self._faces):
             for j in range(3):
-                self._model.vectors[i][j] = f[j]
+                self._model.vectors[i][j] = self._vectors[f[j]]
 
     def _get_vectors(self):
-        self._vectors = np.zeros([self._heights.shape[0], self._heights.shape[1]], dtype=np.dtype((np.float64, 3)))
+        self._vectors = []
         for x in range(self._heights.shape[0]):
             for y in range(self._heights.shape[1]):
-                self._vectors[x, y] = (x, y, self._heights[x][y])
+                self._vectors.append((x, y, self._heights[x][y]))
 
     def _get_faces(self):
         self._faces = []
-        for x in range(self._vectors.shape[0] - 1):
-            for y in range(self._vectors.shape[1] - 1):
+        for x in range(self._heights.shape[0] - 1):
+            for y in range(self._heights.shape[1] - 1):
                 self._faces.append((x, y, y + 1))
                 self._faces.append((x, y + 1, y))
 
