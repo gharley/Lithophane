@@ -82,28 +82,32 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         scale = self._max_size / max(self._img.width, self._img.height)
         gray = ImageOps.scale(gray, scale, True)
         self._heights = np.zeros([gray.height + 2, gray.width + 2])
-        self._heights[1:-1, 1:-1] = (matplotlib.image.pil_to_array(gray) / np.max(gray.getdata())) * self._max_height
+        self._heights[1:-1, 1:-1] = matplotlib.image.pil_to_array(gray) / np.max(gray.getdata()) * self._max_height
         self._get_vectors()
         self._get_faces()
 
         # Create the mesh
-        self._model = mesh.Mesh(np.zeros(len(self._faces), dtype=mesh.Mesh.dtype))
-        for i, f in enumerate(self._faces):
-            for j in range(3):
-                self._model.vectors[i][j] = self._vectors[f[j]]
+        self._model = mesh.Mesh(np.zeros(self._vectors.size, dtype=mesh.Mesh.dtype))
+        temp = self._vectors.flatten()
+        for i, f in enumerate(temp):
+            self._model.vectors[i] = f
+        #     for j in range(3):
+        #         self._model.vectors[i][j] = self._vectors[f[j], :]
 
     def _get_vectors(self):
-        self._vectors = []
+        self._vectors = np.zeros([self._heights.size, 3], np.dtype(np.float64, (3, )))
         for x in range(self._heights.shape[0]):
             for y in range(self._heights.shape[1]):
-                self._vectors.append((x, y, self._heights[x][y]))
+                self._vectors[x * self._heights.shape[1] + y] = (float(x), float(y), self._heights[x][y])
 
     def _get_faces(self):
         self._faces = []
         for x in range(self._heights.shape[0] - 1):
             for y in range(self._heights.shape[1] - 1):
-                self._faces.append((x, y, y + 1))
-                self._faces.append((x, y + 1, y))
+                offset = x * self._heights.shape[1]
+
+                self._faces.append((offset, y, y + 1))
+                self._faces.append((offset, y + 1, y))
 
 
 if __name__ == "__main__":
