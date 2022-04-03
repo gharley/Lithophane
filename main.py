@@ -41,18 +41,18 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self.process_image("C:/Cloud/Google/Fab/Artwork/nsfw.png")
 
         # Create a new plot
-        figure = pyplot.figure()
-        axes = mplot3d.Axes3D(figure)
+        # figure = pyplot.figure()
+        # axes = mplot3d.Axes3D(figure)
 
         # Load the STL files and add the vectors to the plot
-        axes.add_collection3d(mplot3d.art3d.Poly3DCollection(self._model.vectors))
+        # axes.add_collection3d(mplot3d.art3d.Poly3DCollection(self._model.vectors))
 
         # Auto scale to the mesh size
         # scale = self._model.points.flatten(-1)
         # axes.auto_scale_xyz(scale, scale, scale)
 
         # Show the plot to the screen
-        pyplot.show()
+        # pyplot.show()
 
         self.imgLayout = self._main.imgLayout
         fig = Figure(figsize=(self._img.width, self._img.height))
@@ -60,8 +60,8 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         static_canvas = FigureCanvas(fig)
         self._main.imgLayout.addWidget(static_canvas)
 
-        dynamic_canvas = FigureCanvas(Figure(figsize=(self._img.width, self._img.height)))
-        self.imgLayout.addWidget(dynamic_canvas)
+        # dynamic_canvas = FigureCanvas(Figure(figsize=(self._img.width, self._img.height)))
+        # self.imgLayout.addWidget(dynamic_canvas)
         # self._main.imgLayout.addWidget(NavigationToolbar(dynamic_canvas, self))
         #
         # # self._static_ax = static_canvas.figure.subplots()
@@ -83,16 +83,47 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         gray = ImageOps.scale(gray, scale, True)
         self._heights = np.zeros([gray.height + 2, gray.width + 2])
         self._heights[1:-1, 1:-1] = matplotlib.image.pil_to_array(gray) / np.max(gray.getdata()) * self._max_height
-        self._get_vectors()
-        self._get_faces()
+        x1 = np.linspace(1, self._heights.shape[1], self._heights.shape[1])
+        y1 = np.linspace(1, self._heights.shape[0], self._heights.shape[0])
 
-        # Create the mesh
-        self._model = mesh.Mesh(np.zeros(self._vectors.size, dtype=mesh.Mesh.dtype))
-        temp = self._vectors.flatten()
-        for i, f in enumerate(temp):
-            self._model.vectors[i] = f
-        #     for j in range(3):
-        #         self._model.vectors[i][j] = self._vectors[f[j], :]
+        x, y = np.meshgrid(x1, y1)
+
+        count = 0
+        points = []
+        triangles = []
+        for i in range(self._heights.shape[0] - 1):
+            for j in range(self._heights.shape[1] - 1):
+                # Triangle 1
+                points.append([x[i][j], y[i][j], self._heights[i][j]])
+                points.append([x[i][j + 1], y[i][j + 1], self._heights[i][j + 1]])
+                points.append([x[i + 1][j], y[i + 1][j], self._heights[i + 1][j]])
+
+                triangles.append([count, count + 1, count + 2])
+
+                # Triangle 2
+                points.append([x[i][j + 1], y[i][j + 1], self._heights[i][j + 1]])
+                points.append([x[i + 1][j + 1], y[i + 1][j + 1], self._heights[i + 1][j + 1]])
+                points.append([x[i + 1][j], y[i + 1][j], self._heights[i + 1][j]])
+
+                triangles.append([count + 3, count + 4, count + 5])
+
+                count += 6
+
+        self._model = mesh.Mesh(np.zeros(len(triangles), dtype=mesh.Mesh.dtype))
+        for i, f in enumerate(triangles):
+            for j in range(3):
+                self._model.vectors[i][j] = points[f[j]]
+
+        # fig = pyplot.figure()
+        fig = Figure(figsize=(self._img.width, self._img.height))
+        ax = fig.gca(projection='3d')
+        ax.add_collection3d(mplot3d.art3d.Poly3DCollection(self._model.vectors))
+        dynamic_canvas = FigureCanvas(fig)
+        self.imgLayout.addWidget(dynamic_canvas)
+        pyplot.show()
+        self._model.save("C:/Cloud/Google/Fab/Artwork/nsfw.stl")
+        # self._get_vectors()
+        # self._get_faces()
 
     def _get_vectors(self):
         self._vectors = np.zeros([self._heights.size, 3], np.dtype(np.float64, (3, )))
