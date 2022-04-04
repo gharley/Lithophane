@@ -4,6 +4,7 @@ import time
 import matplotlib.image
 import numpy as np
 from stl import mesh
+import open3d as o3d
 
 from matplotlib.backends.qt_compat import QtWidgets
 from matplotlib.backends.backend_qt5agg import (
@@ -26,8 +27,8 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self._faces = None
         self._model = None
 
-        self._max_height = 3
-        self._max_size = 100
+        self._max_height = 5
+        self._max_size = 254
 
         ui_file = QFile('mainwindow.ui')
         ui_file.open(QFile.ReadOnly)
@@ -83,6 +84,23 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         gray = ImageOps.scale(gray, scale, True)
         self._heights = np.zeros([gray.height + 2, gray.width + 2])
         self._heights[1:-1, 1:-1] = matplotlib.image.pil_to_array(gray) / np.max(gray.getdata()) * self._max_height
+
+        self._get_vectors()
+
+        pcl = o3d.geometry.PointCloud()
+        point_cloud = np.asarray(self._vectors)
+        pcl.points = o3d.utility.Vector3dVector(point_cloud)
+        img = o3d.geometry.Image((self._heights * 255).astype(np.uint8))
+        pcl.colors = o3d.utility.Vector3dVector(point_cloud / 255)
+        pcl.normals = o3d.utility.Vector3dVector(point_cloud)
+        distances = pcl.compute_nearest_neighbor_distance()
+        avg_dist = np.mean(distances)
+        radius = 3 * avg_dist
+        bpa_mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcl, depth=self._max_height)
+        # bpa_mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_ball_pivoting(pcl, o3d.utility.DoubleVector([radius, radius * 2]))
+        # o3d.visualization.draw_geometries([pcl])
+        # o3d.visualization.draw_geometries([bpa_mesh[0]])
+
         x1 = np.linspace(1, self._heights.shape[1], self._heights.shape[1])
         y1 = np.linspace(1, self._heights.shape[0], self._heights.shape[0])
 
@@ -117,7 +135,8 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         # fig = pyplot.figure()
         fig = Figure(figsize=(self._img.width, self._img.height))
         ax = fig.gca(projection='3d')
-        ax.add_collection3d(mplot3d.art3d.Poly3DCollection(self._model.vectors))
+        ax.add_collection3d(mplot3d.art3d.Poly3DCollection(np.asarray(bpa_mesh[0].triangles)))
+        # ax.add_collection3d(mplot3d.art3d.Poly3DCollection(self._model.vectors))
         dynamic_canvas = FigureCanvas(fig)
         self.imgLayout.addWidget(dynamic_canvas)
         pyplot.show()
