@@ -28,7 +28,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self._model = None
 
         self._max_height = 5
-        self._max_size = 254
+        self._max_size = 127
 
         ui_file = QFile('mainwindow.ui')
         ui_file.open(QFile.ReadOnly)
@@ -92,63 +92,112 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         pcl.points = o3d.utility.Vector3dVector(point_cloud)
         img = o3d.geometry.Image((self._heights * 255).astype(np.uint8))
         pcl.colors = o3d.utility.Vector3dVector(point_cloud / 255)
-        pcl.normals = o3d.utility.Vector3dVector(point_cloud)
-        distances = pcl.compute_nearest_neighbor_distance()
-        avg_dist = np.mean(distances)
-        radius = 3 * avg_dist
-        bpa_mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcl, depth=self._max_height)
-        # bpa_mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_ball_pivoting(pcl, o3d.utility.DoubleVector([radius, radius * 2]))
+        pcl.estimate_normals()
+        # pcl.orient_normals_consistent_tangent_plane(100)
+        pcl.orient_normals_to_align_with_direction()
+        pcl = pcl.normalize_normals()
         # o3d.visualization.draw_geometries([pcl])
-        # o3d.visualization.draw_geometries([bpa_mesh[0]])
 
-        x1 = np.linspace(1, self._heights.shape[1], self._heights.shape[1])
-        y1 = np.linspace(1, self._heights.shape[0], self._heights.shape[0])
+        poisson = True
 
-        x, y = np.meshgrid(x1, y1)
+        if poisson:
+            # Mesh from poisson
+            bpa_mesh, densities = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcl, depth=9)
 
-        count = 0
-        points = []
-        triangles = []
-        for i in range(self._heights.shape[0] - 1):
-            for j in range(self._heights.shape[1] - 1):
-                # Triangle 1
-                points.append([x[i][j], y[i][j], self._heights[i][j]])
-                points.append([x[i][j + 1], y[i][j + 1], self._heights[i][j + 1]])
-                points.append([x[i + 1][j], y[i + 1][j], self._heights[i + 1][j]])
+            # densities = np.asarray(densities)
+            # density_colors = pyplot.get_cmap('plasma')(
+            #     (densities - densities.min()) / (densities.max() - densities.min()))
+            # density_colors = density_colors[:, :3]
+            # density_mesh = o3d.geometry.TriangleMesh()
+            # density_mesh.vertices = bpa_mesh.vertices
+            # density_mesh.triangles = bpa_mesh.triangles
+            # density_mesh.triangle_normals = bpa_mesh.triangle_normals
+            # density_mesh.vertex_colors = o3d.utility.Vector3dVector(density_colors)
+            # o3d.visualization.draw_geometries([density_mesh])
+            #
+            # vertices_to_remove = densities < np.quantile(densities, 0.01)
+            # density_mesh.remove_vertices_by_mask(vertices_to_remove)
+            # o3d.visualization.draw_geometries([density_mesh])
 
-                triangles.append([count, count + 1, count + 2])
+        else:
+            # Mesh from ball pivot
+            distances = pcl.compute_nearest_neighbor_distance()
+            avg_dist = np.mean(distances)
+            radius = avg_dist * 3
+            bpa_mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_ball_pivoting(pcl, o3d.utility.DoubleVector([radius, radius * 2]))
 
-                # Triangle 2
-                points.append([x[i][j + 1], y[i][j + 1], self._heights[i][j + 1]])
-                points.append([x[i + 1][j + 1], y[i + 1][j + 1], self._heights[i + 1][j + 1]])
-                points.append([x[i + 1][j], y[i + 1][j], self._heights[i + 1][j]])
-
-                triangles.append([count + 3, count + 4, count + 5])
-
-                count += 6
-
-        self._model = mesh.Mesh(np.zeros(len(triangles), dtype=mesh.Mesh.dtype))
-        for i, f in enumerate(triangles):
-            for j in range(3):
-                self._model.vectors[i][j] = points[f[j]]
+        bpa_mesh.compute_vertex_normals()
+        bpa_mesh.remove_degenerate_triangles()
+        o3d.visualization.draw_geometries([bpa_mesh], mesh_show_back_face=True)
+        o3d.io.write_triangle_mesh("C:/Cloud/Google/Fab/Artwork/nsfw.stl", bpa_mesh)
+        # x1 = np.linspace(1, self._heights.shape[1], self._heights.shape[1])
+        # y1 = np.linspace(1, self._heights.shape[0], self._heights.shape[0])
+        #
+        # x, y = np.meshgrid(x1, y1)
+        #
+        # count = 0
+        # points = []
+        # triangles = []
+        # for i in range(self._heights.shape[0] - 1):
+        #     for j in range(self._heights.shape[1] - 1):
+        #         # Triangle 1
+        #         points.append([x[i][j], y[i][j], self._heights[i][j]])
+        #         points.append([x[i][j + 1], y[i][j + 1], self._heights[i][j + 1]])
+        #         points.append([x[i + 1][j], y[i + 1][j], self._heights[i + 1][j]])
+        #
+        #         triangles.append([count, count + 1, count + 2])
+        #
+        #         # Triangle 2
+        #         points.append([x[i][j + 1], y[i][j + 1], self._heights[i][j + 1]])
+        #         points.append([x[i + 1][j + 1], y[i + 1][j + 1], self._heights[i + 1][j + 1]])
+        #         points.append([x[i + 1][j], y[i + 1][j], self._heights[i + 1][j]])
+        #
+        #         triangles.append([count + 3, count + 4, count + 5])
+        #
+        #         count += 6
+        #
+        # self._model = mesh.Mesh(np.zeros(len(triangles), dtype=mesh.Mesh.dtype))
+        # for i, f in enumerate(triangles):
+        #     for j in range(3):
+        #         self._model.vectors[i][j] = points[f[j]]
 
         # fig = pyplot.figure()
-        fig = Figure(figsize=(self._img.width, self._img.height))
-        ax = fig.gca(projection='3d')
-        ax.add_collection3d(mplot3d.art3d.Poly3DCollection(np.asarray(bpa_mesh[0].triangles)))
-        # ax.add_collection3d(mplot3d.art3d.Poly3DCollection(self._model.vectors))
-        dynamic_canvas = FigureCanvas(fig)
-        self.imgLayout.addWidget(dynamic_canvas)
-        pyplot.show()
-        self._model.save("C:/Cloud/Google/Fab/Artwork/nsfw.stl")
+        # fig = Figure(figsize=(self._img.width, self._img.height))
+        # ax = fig.gca(projection='3d')
+        # ax.add_collection3d(mplot3d.art3d.Poly3DCollection(np.asarray(bpa_mesh[0])))
+        # # ax.add_collection3d(mplot3d.art3d.Poly3DCollection(self._model.vectors))
+        # dynamic_canvas = FigureCanvas(fig)
+        # self.imgLayout.addWidget(dynamic_canvas)
+        # pyplot.show()
+        # self._model.save("C:/Cloud/Google/Fab/Artwork/nsfw.stl")
         # self._get_vectors()
         # self._get_faces()
 
     def _get_vectors(self):
-        self._vectors = np.zeros([self._heights.size, 3], np.dtype(np.float64, (3, )))
+        self._vectors = np.zeros([self._heights.size * 2, 3], np.dtype(np.float64, (3, )))
         for x in range(self._heights.shape[0]):
             for y in range(self._heights.shape[1]):
                 self._vectors[x * self._heights.shape[1] + y] = (float(x), float(y), self._heights[x][y])
+                self._vectors[x * self._heights.shape[1] + y + self._heights.size] = (float(x), float(y), 0)
+
+        # self._vectors = np.append(self._vectors, [[self._heights.shape[0] - 1, 0, 0]], axis=0)
+        # self._vectors = np.append(self._vectors, [[0, self._heights.shape[1] - 1, self._heights.shape[0] - 1]], axis=0)
+        # for x in range(self._heights.shape[0]):
+        #     for y in range(self._heights.shape[1]):
+        #         self._vectors[x * self._heights.shape[1] + y + self._heights.size] = (float(x), float(y), 0)
+        # for j in range(self._heights.shape[1]-1):
+        #     x = self._heights[1]
+        #     y = self._heights[0]
+        #     bot = self._heights.shape[0]-1
+        #
+        #     # Back Triangle 1
+        #     np.append(self._vectors, [x[j+1], y[j+1], self._heights[0][j+1]], axis=0)
+        #     np.append(self._vectors, [x[j],   y[j],   self._heights[0][j]], axis=0)
+        #
+        #     # Triangle 2
+        #     np.append(self._vectors, [x[bot - j], y[bot - j], self._heights[bot][j]], axis=0)
+        #     np.append(self._vectors, [x[bot - j+1], y[bot - j+1], self._heights[bot][j+1]], axis=0)
+        #     np.append(self._vectors, [x[j+1], y[j+1], self._heights[0][j+1]], axis=0)
 
     def _get_faces(self):
         self._faces = []
