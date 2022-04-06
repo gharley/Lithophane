@@ -90,15 +90,6 @@ class ApplicationWindow(QtWidgets.QMainWindow):
 
         self._get_vectors()
 
-        # fovy = math.radians(60)
-        # f = gray.height / (2 * math.tan(fovy / 2))
-        # cx = gray.width / 2
-        # cy = gray.height / 2
-        # cam_mat = o3d.camera.PinholeCameraIntrinsic(gray.width, gray.height, f, f, cx, cy)
-        #
-        # rgbd = o3d.geometry.RGBDImage.create_from_color_and_depth(img, img / 255)
-        # pcl = o3d.geometry.PointCloud.create_from_rgbd_image(rgbd, cam_mat)
-        # o3d.visualization.draw_geometries([pcl])
         pcl = o3d.geometry.PointCloud()
         point_cloud = np.asarray(self._vectors)
         pcl.points = o3d.utility.Vector3dVector(point_cloud)
@@ -109,37 +100,21 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         # pcl.orient_normals_consistent_tangent_plane(100)
         pcl.orient_normals_to_align_with_direction()
         pcl = pcl.normalize_normals()
+        # o3d.visualization.draw_geometries([pcl], mesh_show_back_face=True)
 
         poisson = True
 
-        if poisson:
-            # Mesh from poisson
-            bpa_mesh, densities = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcl, depth=9)
+        if poisson:  # Mesh from poisson
+            bpa_mesh, densities = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcl, depth=10, linear_fit=True, n_threads=-1)
 
-            # densities = np.asarray(densities)
-            # density_colors = pyplot.get_cmap('plasma')(
-            #     (densities - densities.min()) / (densities.max() - densities.min()))
-            # density_colors = density_colors[:, :3]
-            # density_mesh = o3d.geometry.TriangleMesh()
-            # density_mesh.vertices = bpa_mesh.vertices
-            # density_mesh.triangles = bpa_mesh.triangles
-            # density_mesh.triangle_normals = bpa_mesh.triangle_normals
-            # density_mesh.vertex_colors = o3d.utility.Vector3dVector(density_colors)
-            # o3d.visualization.draw_geometries([density_mesh])
-            #
-            # vertices_to_remove = densities < np.quantile(densities, 0.01)
-            # density_mesh.remove_vertices_by_mask(vertices_to_remove)
-            # o3d.visualization.draw_geometries([density_mesh])
-
-        else:
-            # Mesh from ball pivot
+        else:  # Mesh from ball pivot
             distances = pcl.compute_nearest_neighbor_distance()
             avg_dist = np.mean(distances)
             radius = avg_dist * 3
             bpa_mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_ball_pivoting(pcl, o3d.utility.DoubleVector([radius, radius * 2]))
 
         bpa_mesh.compute_vertex_normals()
-        # bpa_mesh.remove_degenerate_triangles()
+        bpa_mesh.remove_degenerate_triangles()
         o3d.visualization.draw_geometries([bpa_mesh], mesh_show_back_face=True)
         o3d.io.write_triangle_mesh("C:/Cloud/Google/Fab/Artwork/nsfw.stl", bpa_mesh)
 
@@ -167,9 +142,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
                 if 0 < x < self._heights.shape[0] - 1 and 0 < y < self._heights.shape[1] - 1:
                     self._img_colors[index] = img_data[x-1, y-1] / 255
 
-                # self._vectors[x * self._heights.shape[1] + y + self._heights.size] = (float(x), float(y), 0.0)
-
-        # self._vectors = np.append(self._vectors, [[self._heights.shape[0] - 1, 0, 0]], axis=0)
+        # self._vectors = np.append(self._vectors, [[0, 0, 0], [self._heights.shape[0] - 1, 0, 0], [self._heights.shape[0] - 1, self._heights.shape[1] - 1, 0], [0, self._heights.shape[1] - 1, 0]], axis=0)
         # self._vectors = np.append(self._vectors, [[0, self._heights.shape[1] - 1, self._heights.shape[0] - 1]], axis=0)
         # for x in range(self._heights.shape[0]):
         #     for y in range(self._heights.shape[1]):
