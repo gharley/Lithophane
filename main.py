@@ -1,3 +1,4 @@
+import math
 import sys
 import time
 
@@ -22,6 +23,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         super().__init__()
 
         self._img = None
+        self._img_colors = None
         self._heights = None
         self._vectors = None
         self._faces = None
@@ -79,24 +81,34 @@ class ApplicationWindow(QtWidgets.QMainWindow):
 
     def process_image(self, filename):
         self._img = Image.open(filename)
-        gray = ImageOps.grayscale(self._img)
         scale = self._max_size / max(self._img.width, self._img.height)
-        gray = ImageOps.scale(gray, scale, True)
+        self._img = ImageOps.scale(self._img, scale, True)
+        gray = ImageOps.grayscale(self._img)
+        img = o3d.geometry.Image(matplotlib.image.pil_to_array(gray))
         self._heights = np.zeros([gray.height + 2, gray.width + 2])
-        self._heights[1:-1, 1:-1] = matplotlib.image.pil_to_array(gray) / np.max(gray.getdata()) * self._max_height
+        self._heights[1:-1, 1:-1] = img / np.max(gray.getdata()) * self._max_height
 
         self._get_vectors()
 
+        # fovy = math.radians(60)
+        # f = gray.height / (2 * math.tan(fovy / 2))
+        # cx = gray.width / 2
+        # cy = gray.height / 2
+        # cam_mat = o3d.camera.PinholeCameraIntrinsic(gray.width, gray.height, f, f, cx, cy)
+        #
+        # rgbd = o3d.geometry.RGBDImage.create_from_color_and_depth(img, img / 255)
+        # pcl = o3d.geometry.PointCloud.create_from_rgbd_image(rgbd, cam_mat)
+        # o3d.visualization.draw_geometries([pcl])
         pcl = o3d.geometry.PointCloud()
         point_cloud = np.asarray(self._vectors)
         pcl.points = o3d.utility.Vector3dVector(point_cloud)
-        img = o3d.geometry.Image((self._heights * 255).astype(np.uint8))
-        pcl.colors = o3d.utility.Vector3dVector(point_cloud / 255)
+        # img = o3d.geometry.Image((self._heights * 255).astype(np.uint8))
+        pcl.colors = o3d.utility.Vector3dVector(np.asarray(self._img_colors))
+        # pcl.colors =(point_cloud / 255)
         pcl.estimate_normals()
         # pcl.orient_normals_consistent_tangent_plane(100)
         pcl.orient_normals_to_align_with_direction()
         pcl = pcl.normalize_normals()
-        # o3d.visualization.draw_geometries([pcl])
 
         poisson = True
 
@@ -127,39 +139,9 @@ class ApplicationWindow(QtWidgets.QMainWindow):
             bpa_mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_ball_pivoting(pcl, o3d.utility.DoubleVector([radius, radius * 2]))
 
         bpa_mesh.compute_vertex_normals()
-        bpa_mesh.remove_degenerate_triangles()
+        # bpa_mesh.remove_degenerate_triangles()
         o3d.visualization.draw_geometries([bpa_mesh], mesh_show_back_face=True)
         o3d.io.write_triangle_mesh("C:/Cloud/Google/Fab/Artwork/nsfw.stl", bpa_mesh)
-        # x1 = np.linspace(1, self._heights.shape[1], self._heights.shape[1])
-        # y1 = np.linspace(1, self._heights.shape[0], self._heights.shape[0])
-        #
-        # x, y = np.meshgrid(x1, y1)
-        #
-        # count = 0
-        # points = []
-        # triangles = []
-        # for i in range(self._heights.shape[0] - 1):
-        #     for j in range(self._heights.shape[1] - 1):
-        #         # Triangle 1
-        #         points.append([x[i][j], y[i][j], self._heights[i][j]])
-        #         points.append([x[i][j + 1], y[i][j + 1], self._heights[i][j + 1]])
-        #         points.append([x[i + 1][j], y[i + 1][j], self._heights[i + 1][j]])
-        #
-        #         triangles.append([count, count + 1, count + 2])
-        #
-        #         # Triangle 2
-        #         points.append([x[i][j + 1], y[i][j + 1], self._heights[i][j + 1]])
-        #         points.append([x[i + 1][j + 1], y[i + 1][j + 1], self._heights[i + 1][j + 1]])
-        #         points.append([x[i + 1][j], y[i + 1][j], self._heights[i + 1][j]])
-        #
-        #         triangles.append([count + 3, count + 4, count + 5])
-        #
-        #         count += 6
-        #
-        # self._model = mesh.Mesh(np.zeros(len(triangles), dtype=mesh.Mesh.dtype))
-        # for i, f in enumerate(triangles):
-        #     for j in range(3):
-        #         self._model.vectors[i][j] = points[f[j]]
 
         # fig = pyplot.figure()
         # fig = Figure(figsize=(self._img.width, self._img.height))
@@ -174,11 +156,18 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         # self._get_faces()
 
     def _get_vectors(self):
-        self._vectors = np.zeros([self._heights.size * 2, 3], np.dtype(np.float64, (3, )))
+        self._img_colors = np.zeros([self._heights.size, 3], np.dtype(np.float64, (3, )))
+        self._vectors = np.zeros([self._heights.size, 3], np.dtype(np.float64, (3, )))
+        img_data = matplotlib.image.pil_to_array(self._img)
         for x in range(self._heights.shape[0]):
             for y in range(self._heights.shape[1]):
-                self._vectors[x * self._heights.shape[1] + y] = (float(x), float(y), self._heights[x][y])
-                self._vectors[x * self._heights.shape[1] + y + self._heights.size] = (float(x), float(y), 0)
+                index = x * self._heights.shape[1] + y
+                self._vectors[index] = (float(x), float(y), self._heights[x][y])
+
+                if 0 < x < self._heights.shape[0] - 1 and 0 < y < self._heights.shape[1] - 1:
+                    self._img_colors[index] = img_data[x-1, y-1] / 255
+
+                # self._vectors[x * self._heights.shape[1] + y + self._heights.size] = (float(x), float(y), 0.0)
 
         # self._vectors = np.append(self._vectors, [[self._heights.shape[0] - 1, 0, 0]], axis=0)
         # self._vectors = np.append(self._vectors, [[0, self._heights.shape[1] - 1, self._heights.shape[0] - 1]], axis=0)
