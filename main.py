@@ -29,6 +29,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self._faces = None
         self._model = None
 
+        self._base_height = 1
         self._max_height = 5
         self._max_size = 127
 
@@ -81,6 +82,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
 
     def process_image(self, filename):
         self._img = Image.open(filename)
+
         scale = self._max_size / max(self._img.width, self._img.height)
         self._img = ImageOps.scale(self._img, scale, True)
         gray = ImageOps.grayscale(self._img)
@@ -91,21 +93,28 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self._get_vectors()
 
         pcl = o3d.geometry.PointCloud()
-        point_cloud = np.asarray(self._vectors)
-        pcl.points = o3d.utility.Vector3dVector(point_cloud)
+        pcl = o3d.io.read_point_cloud(o3d.data.BunnyMesh().path)
+        # point_cloud = np.asarray(self._vectors)
+        # pcl.points = o3d.utility.Vector3dVector(point_cloud)
         # img = o3d.geometry.Image((self._heights * 255).astype(np.uint8))
-        pcl.colors = o3d.utility.Vector3dVector(np.asarray(self._img_colors))
-        # pcl.colors =(point_cloud / 255)
+        # pcl.colors = o3d.utility.Vector3dVector(np.asarray(self._img_colors))
+        pcl.paint_uniform_color([0.5, 0.5, 1.0])
         pcl.estimate_normals()
         # pcl.orient_normals_consistent_tangent_plane(100)
+        # pcl.orient_normals_towards_camera_location()
         pcl.orient_normals_to_align_with_direction()
         pcl = pcl.normalize_normals()
-        # o3d.visualization.draw_geometries([pcl], mesh_show_back_face=True)
-
+        aabb = pcl.get_axis_aligned_bounding_box()
+        aabb.color = (1, 0, 0)
+        obb = pcl.get_oriented_bounding_box()
+        obb.color = (0, 1, 0)
+        o3d.visualization.draw_geometries([pcl, aabb, obb], mesh_show_back_face=True)
+        # voxel_grid = o3d.geometry.VoxelGrid.create_from_point_cloud(pcl, voxel_size=0.40)
+        # o3d.visualization.draw_geometries([voxel_grid], mesh_show_back_face=True)
         poisson = True
 
         if poisson:  # Mesh from poisson
-            bpa_mesh, densities = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcl, depth=10, linear_fit=True, n_threads=-1)
+            bpa_mesh, densities = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcl, depth=10, linear_fit=False, n_threads=-1)
 
         else:  # Mesh from ball pivot
             distances = pcl.compute_nearest_neighbor_distance()
@@ -113,9 +122,31 @@ class ApplicationWindow(QtWidgets.QMainWindow):
             radius = avg_dist * 3
             bpa_mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_ball_pivoting(pcl, o3d.utility.DoubleVector([radius, radius * 2]))
 
-        bpa_mesh.compute_vertex_normals()
-        bpa_mesh.remove_degenerate_triangles()
+        bpa_mesh = bpa_mesh.compute_vertex_normals()
+        bpa_mesh = bpa_mesh.compute_triangle_normals()
+        # bpa_mesh.remove_degenerate_triangles()
+        # bpa_mesh = bpa_mesh.compute_convex_hull()[0]
         o3d.visualization.draw_geometries([bpa_mesh], mesh_show_back_face=True)
+        # voxel_size = 0.5  # max(bpa_mesh.get_max_bound() - bpa_mesh.get_min_bound()) / 64
+        # print(f'mesh.is_edge_manifold = {bpa_mesh.is_edge_manifold()}')
+        # print(f'mesh.is_vertex_manifold = {bpa_mesh.is_vertex_manifold()}')
+        # # print(f'mesh.is_self_intersecting = {bpa_mesh.is_self_intersecting()}')
+        # print(f'voxel_size = {voxel_size:e}')
+        # print(
+        #     f'Base mesh has {len(bpa_mesh.vertices)} vertices and {len(bpa_mesh.triangles)} triangles'
+        # )
+        # bpa_mesh = bpa_mesh.simplify_vertex_clustering(
+        #     voxel_size=voxel_size,
+        #     contraction=o3d.geometry.SimplificationContraction.Average)
+        # bpa_mesh = bpa_mesh.compute_vertex_normals()
+        # bpa_mesh = bpa_mesh.compute_triangle_normals()
+        # print(
+        #     f'Simplified mesh has {len(bpa_mesh.vertices)} vertices and {len(bpa_mesh.triangles)} triangles'
+        # )
+        # print(f'mesh.is_edge_manifold = {bpa_mesh.is_edge_manifold()}')
+        # print(f'mesh.is_vertex_manifold = {bpa_mesh.is_vertex_manifold()}')
+        # # print(f'mesh.is_self_intersecting = {bpa_mesh.is_self_intersecting()}')
+        # o3d.visualization.draw_geometries([bpa_mesh], mesh_show_back_face=True)
         o3d.io.write_triangle_mesh("C:/Cloud/Google/Fab/Artwork/nsfw.stl", bpa_mesh)
 
         # fig = pyplot.figure()
@@ -133,15 +164,27 @@ class ApplicationWindow(QtWidgets.QMainWindow):
     def _get_vectors(self):
         self._img_colors = np.zeros([self._heights.size, 3], np.dtype(np.float64, (3, )))
         self._vectors = np.zeros([self._heights.size, 3], np.dtype(np.float64, (3, )))
+        base = np.zeros([self._heights.size, 3], np.dtype(np.float64, (3, )))
+        bottom = np.zeros([self._heights.size, 3], np.dtype(np.float64, (3, )))
         img_data = matplotlib.image.pil_to_array(self._img)
         for x in range(self._heights.shape[0]):
             for y in range(self._heights.shape[1]):
                 index = x * self._heights.shape[1] + y
-                self._vectors[index] = (float(x), float(y), self._heights[x][y])
+                bottom[index] = (float(x), float(y), 0)
 
                 if 0 < x < self._heights.shape[0] - 1 and 0 < y < self._heights.shape[1] - 1:
-                    self._img_colors[index] = img_data[x-1, y-1] / 255
+                    self._vectors[index] = (float(x), float(y), self._heights[x][y] + self._base_height)
+                    base[index] = (float(x), float(y), self._base_height)
 
+                    self._img_colors[index] = img_data[x-1, y-1] / 255
+                else:
+                    self._vectors[index] = (float(x), float(y), 0)
+                    base[index] = (float(x), float(y), 0)
+
+        self._vectors = np.append(self._vectors, base, axis=0)
+        self._vectors = np.append(self._vectors, bottom, axis=0)
+        self._img_colors = np.append(self._img_colors, np.zeros([self._heights.size * 2, 3], np.dtype(np.float64, (3, ))), axis=0)
+        # self._vectors = np.append(self._vectors, self._vectors, axis=0)
         # self._vectors = np.append(self._vectors, [[0, 0, 0], [self._heights.shape[0] - 1, 0, 0], [self._heights.shape[0] - 1, self._heights.shape[1] - 1, 0], [0, self._heights.shape[1] - 1, 0]], axis=0)
         # self._vectors = np.append(self._vectors, [[0, self._heights.shape[1] - 1, self._heights.shape[0] - 1]], axis=0)
         # for x in range(self._heights.shape[0]):
