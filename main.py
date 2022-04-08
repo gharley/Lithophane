@@ -25,11 +25,11 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self._img = None
         self._img_colors = None
         self._heights = None
-        self._vectors = None
+        self._vertices = None
         self._faces = None
         self._model = None
 
-        self._base_height = 1
+        self._base_height = 0
         self._max_height = 5
         self._max_size = 127
 
@@ -38,25 +38,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self._main = uic.loadUi(ui_file, self)
         ui_file.close()
 
-        # self._main = QtWidgets.QWidget()
-        # self.setCentralWidget(self._main)
-        # layout = QtWidgets.QVBoxLayout(self._main)
-        #
         self.process_image("C:/Cloud/Google/Fab/Artwork/nsfw.png")
-
-        # Create a new plot
-        # figure = pyplot.figure()
-        # axes = mplot3d.Axes3D(figure)
-
-        # Load the STL files and add the vectors to the plot
-        # axes.add_collection3d(mplot3d.art3d.Poly3DCollection(self._model.vectors))
-
-        # Auto scale to the mesh size
-        # scale = self._model.points.flatten(-1)
-        # axes.auto_scale_xyz(scale, scale, scale)
-
-        # Show the plot to the screen
-        # pyplot.show()
 
         self.imgLayout = self._main.imgLayout
         fig = Figure(figsize=(self._img.width, self._img.height))
@@ -66,19 +48,6 @@ class ApplicationWindow(QtWidgets.QMainWindow):
 
         # dynamic_canvas = FigureCanvas(Figure(figsize=(self._img.width, self._img.height)))
         # self.imgLayout.addWidget(dynamic_canvas)
-        # self._main.imgLayout.addWidget(NavigationToolbar(dynamic_canvas, self))
-        #
-        # # self._static_ax = static_canvas.figure.subplots()
-        # # t = np.linspace(0, 10, 501)
-        # # self._static_ax.plot(t, np.tan(t), ".")
-        #
-        # self._dynamic_ax = dynamic_canvas.figure.subplots()
-        # t = np.linspace(0, 10, 101)
-        # # Set up a Line2D.
-        # self._line, = self._dynamic_ax.plot(t, np.sin(t + time.time()))
-        # self._timer = dynamic_canvas.new_timer(50)
-        # self._timer.add_callback(self._update_canvas)
-        # self._timer.start()
 
     def process_image(self, filename):
         self._img = Image.open(filename)
@@ -90,18 +59,13 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self._heights = np.zeros([gray.height + 2, gray.width + 2])
         self._heights[1:-1, 1:-1] = img / np.max(gray.getdata()) * self._max_height
 
-        self._get_vectors()
+        self._get_vertices()
 
         pcl = o3d.geometry.PointCloud()
-        pcl = o3d.io.read_point_cloud(o3d.data.BunnyMesh().path)
-        # point_cloud = np.asarray(self._vectors)
-        # pcl.points = o3d.utility.Vector3dVector(point_cloud)
-        # img = o3d.geometry.Image((self._heights * 255).astype(np.uint8))
-        # pcl.colors = o3d.utility.Vector3dVector(np.asarray(self._img_colors))
+        point_cloud = np.asarray(self._vertices)
+        pcl.points = o3d.utility.Vector3dVector(point_cloud)
         pcl.paint_uniform_color([0.5, 0.5, 1.0])
         pcl.estimate_normals()
-        # pcl.orient_normals_consistent_tangent_plane(100)
-        # pcl.orient_normals_towards_camera_location()
         pcl.orient_normals_to_align_with_direction()
         pcl = pcl.normalize_normals()
         aabb = pcl.get_axis_aligned_bounding_box()
@@ -109,8 +73,8 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         obb = pcl.get_oriented_bounding_box()
         obb.color = (0, 1, 0)
         o3d.visualization.draw_geometries([pcl, aabb, obb], mesh_show_back_face=True)
-        # voxel_grid = o3d.geometry.VoxelGrid.create_from_point_cloud(pcl, voxel_size=0.40)
-        # o3d.visualization.draw_geometries([voxel_grid], mesh_show_back_face=True)
+        voxel_grid = o3d.geometry.VoxelGrid.create_from_point_cloud(pcl, voxel_size=0.40)
+        o3d.visualization.draw_geometries([voxel_grid], mesh_show_back_face=True)
         poisson = True
 
         if poisson:  # Mesh from poisson
@@ -127,91 +91,51 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         # bpa_mesh.remove_degenerate_triangles()
         # bpa_mesh = bpa_mesh.compute_convex_hull()[0]
         o3d.visualization.draw_geometries([bpa_mesh], mesh_show_back_face=True)
-        # voxel_size = 0.5  # max(bpa_mesh.get_max_bound() - bpa_mesh.get_min_bound()) / 64
-        # print(f'mesh.is_edge_manifold = {bpa_mesh.is_edge_manifold()}')
-        # print(f'mesh.is_vertex_manifold = {bpa_mesh.is_vertex_manifold()}')
-        # # print(f'mesh.is_self_intersecting = {bpa_mesh.is_self_intersecting()}')
-        # print(f'voxel_size = {voxel_size:e}')
-        # print(
-        #     f'Base mesh has {len(bpa_mesh.vertices)} vertices and {len(bpa_mesh.triangles)} triangles'
-        # )
-        # bpa_mesh = bpa_mesh.simplify_vertex_clustering(
-        #     voxel_size=voxel_size,
-        #     contraction=o3d.geometry.SimplificationContraction.Average)
-        # bpa_mesh = bpa_mesh.compute_vertex_normals()
-        # bpa_mesh = bpa_mesh.compute_triangle_normals()
-        # print(
-        #     f'Simplified mesh has {len(bpa_mesh.vertices)} vertices and {len(bpa_mesh.triangles)} triangles'
-        # )
-        # print(f'mesh.is_edge_manifold = {bpa_mesh.is_edge_manifold()}')
-        # print(f'mesh.is_vertex_manifold = {bpa_mesh.is_vertex_manifold()}')
-        # # print(f'mesh.is_self_intersecting = {bpa_mesh.is_self_intersecting()}')
-        # o3d.visualization.draw_geometries([bpa_mesh], mesh_show_back_face=True)
+        print(f'mesh.is_edge_manifold = {bpa_mesh.is_edge_manifold()}')
+        print(f'mesh.is_vertex_manifold = {bpa_mesh.is_vertex_manifold()}')
+        print(f'mesh.is_watertight = {bpa_mesh.is_watertight()}')
+        # bpa_mesh = self._simplify_mesh(bpa_mesh)
         o3d.io.write_triangle_mesh("C:/Cloud/Google/Fab/Artwork/nsfw.stl", bpa_mesh)
 
-        # fig = pyplot.figure()
-        # fig = Figure(figsize=(self._img.width, self._img.height))
-        # ax = fig.gca(projection='3d')
-        # ax.add_collection3d(mplot3d.art3d.Poly3DCollection(np.asarray(bpa_mesh[0])))
-        # # ax.add_collection3d(mplot3d.art3d.Poly3DCollection(self._model.vectors))
-        # dynamic_canvas = FigureCanvas(fig)
-        # self.imgLayout.addWidget(dynamic_canvas)
-        # pyplot.show()
-        # self._model.save("C:/Cloud/Google/Fab/Artwork/nsfw.stl")
-        # self._get_vectors()
-        # self._get_faces()
-
-    def _get_vectors(self):
-        self._img_colors = np.zeros([self._heights.size, 3], np.dtype(np.float64, (3, )))
-        self._vectors = np.zeros([self._heights.size, 3], np.dtype(np.float64, (3, )))
-        base = np.zeros([self._heights.size, 3], np.dtype(np.float64, (3, )))
-        bottom = np.zeros([self._heights.size, 3], np.dtype(np.float64, (3, )))
-        img_data = matplotlib.image.pil_to_array(self._img)
+    def _get_vertices(self):
+        self._vertices = np.zeros([self._heights.size, 3], np.dtype(np.float64, (3,)))
+        vertices = []
+        base = []
         for x in range(self._heights.shape[0]):
             for y in range(self._heights.shape[1]):
-                index = x * self._heights.shape[1] + y
-                bottom[index] = (float(x), float(y), 0)
-
                 if 0 < x < self._heights.shape[0] - 1 and 0 < y < self._heights.shape[1] - 1:
-                    self._vectors[index] = (float(x), float(y), self._heights[x][y] + self._base_height)
-                    base[index] = (float(x), float(y), self._base_height)
+                    height = self._heights[x][y] + self._base_height
+                    while height >= self._base_height:
+                        vertices.append((float(x), float(y), height))
+                        height -= 1.0
 
-                    self._img_colors[index] = img_data[x-1, y-1] / 255
+                    base.append((float(x), float(y), self._base_height))
                 else:
-                    self._vectors[index] = (float(x), float(y), 0)
-                    base[index] = (float(x), float(y), 0)
+                    vertices.append((float(x), float(y), self._max_height))
+                    base.append((float(x), float(y), self._base_height))
 
-        self._vectors = np.append(self._vectors, base, axis=0)
-        self._vectors = np.append(self._vectors, bottom, axis=0)
-        self._img_colors = np.append(self._img_colors, np.zeros([self._heights.size * 2, 3], np.dtype(np.float64, (3, ))), axis=0)
-        # self._vectors = np.append(self._vectors, self._vectors, axis=0)
-        # self._vectors = np.append(self._vectors, [[0, 0, 0], [self._heights.shape[0] - 1, 0, 0], [self._heights.shape[0] - 1, self._heights.shape[1] - 1, 0], [0, self._heights.shape[1] - 1, 0]], axis=0)
-        # self._vectors = np.append(self._vectors, [[0, self._heights.shape[1] - 1, self._heights.shape[0] - 1]], axis=0)
-        # for x in range(self._heights.shape[0]):
-        #     for y in range(self._heights.shape[1]):
-        #         self._vectors[x * self._heights.shape[1] + y + self._heights.size] = (float(x), float(y), 0)
-        # for j in range(self._heights.shape[1]-1):
-        #     x = self._heights[1]
-        #     y = self._heights[0]
-        #     bot = self._heights.shape[0]-1
-        #
-        #     # Back Triangle 1
-        #     np.append(self._vectors, [x[j+1], y[j+1], self._heights[0][j+1]], axis=0)
-        #     np.append(self._vectors, [x[j],   y[j],   self._heights[0][j]], axis=0)
-        #
-        #     # Triangle 2
-        #     np.append(self._vectors, [x[bot - j], y[bot - j], self._heights[bot][j]], axis=0)
-        #     np.append(self._vectors, [x[bot - j+1], y[bot - j+1], self._heights[bot][j+1]], axis=0)
-        #     np.append(self._vectors, [x[j+1], y[j+1], self._heights[0][j+1]], axis=0)
+        self._vertices = np.append(np.array(vertices), np.array(base), axis=0)
 
-    def _get_faces(self):
-        self._faces = []
-        for x in range(self._heights.shape[0] - 1):
-            for y in range(self._heights.shape[1] - 1):
-                offset = x * self._heights.shape[1]
+    @staticmethod
+    def _simplify_mesh(mesh_to_simplify):
+        voxel_size = 0.5  # max(bpa_mesh.get_max_bound() - bpa_mesh.get_min_bound()) / 64
+        print(f'voxel_size = {voxel_size:e}')
+        print(
+            f'Base mesh has {len(mesh_to_simplify.vertices)} vertices and {len(mesh_to_simplify.triangles)} triangles'
+        )
+        simple_mesh = mesh_to_simplify.simplify_vertex_clustering(
+            voxel_size=voxel_size,
+            contraction=o3d.geometry.SimplificationContraction.Average)
+        simple_mesh = simple_mesh.compute_vertex_normals()
+        simple_mesh = simple_mesh.compute_triangle_normals()
+        print(
+            f'Simplified mesh has {len(simple_mesh.vertices)} vertices and {len(simple_mesh.triangles)} triangles'
+        )
+        print(f'mesh.is_edge_manifold = {simple_mesh.is_edge_manifold()}')
+        print(f'mesh.is_vertex_manifold = {simple_mesh.is_vertex_manifold()}')
+        o3d.visualization.draw_geometries([simple_mesh], mesh_show_back_face=True)
 
-                self._faces.append((offset, y, y + 1))
-                self._faces.append((offset, y + 1, y))
+        return simple_mesh
 
 
 if __name__ == "__main__":
