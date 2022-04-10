@@ -66,7 +66,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self._get_vertices()
 
         litho = lp.Lithophane()
-        pcd = litho.create_point_cloud_from_vertices(self._vertices, color=[0.5, 0.5, 1.0], display=True)
+        pcd = litho.create_point_cloud_from_vertices(self._vertices, color=[0.5, 0.5, 1.0], display=True, show_back=True)
         pcd_base = litho.create_point_cloud_from_vertices(self._base_vertices, normal_direction=[0.0, 0.0, -1.0])
 
         aabb = pcd.get_axis_aligned_bounding_box()
@@ -80,8 +80,8 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         poisson = True
 
         if poisson:  # Mesh from poisson
-            bpa_mesh, _ = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd, depth=10, scale=1.0, linear_fit=False, n_threads=-1)
-            base_mesh, _ = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd_base, depth=10, scale=1.0, linear_fit=True, n_threads=-1)
+            bpa_mesh, _ = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd, depth=10, linear_fit=False, n_threads=-1)
+            base_mesh, _ = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd_base, depth=10, linear_fit=True, n_threads=-1)
         else:  # Mesh from ball pivot
             distances = pcd.compute_nearest_neighbor_distance()
             avg_dist = np.mean(distances)
@@ -90,13 +90,13 @@ class ApplicationWindow(QtWidgets.QMainWindow):
 
         bpa_mesh = bpa_mesh.compute_vertex_normals()
         bpa_mesh = bpa_mesh.compute_triangle_normals()
-        # bpa_mesh.remove_degenerate_triangles()
-        # bpa_mesh = bpa_mesh.remove_non_manifold_edges()
+        bpa_mesh.remove_degenerate_triangles()
+        bpa_mesh = bpa_mesh.remove_non_manifold_edges()
         # bpa_mesh.filter_smooth_taubin()
         o3d.visualization.draw_geometries([bpa_mesh], mesh_show_back_face=False)
         print(f'mesh.is_edge_manifold = {bpa_mesh.is_edge_manifold()}')
         print(f'mesh.is_vertex_manifold = {bpa_mesh.is_vertex_manifold()}')
-        # print(f'mesh.is_watertight = {bpa_mesh.is_watertight()}')
+        print(f'mesh.is_watertight = {bpa_mesh.is_watertight()}')
         # bpa_mesh = self._simplify_mesh(bpa_mesh)
         o3d.io.write_triangle_mesh("C:/Cloud/Google/Fab/Artwork/nsfw.stl", bpa_mesh)
 
@@ -107,21 +107,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         for x in range(self._heights.shape[0]):
             for y in range(self._heights.shape[1]):
                 base.append((float(x), float(y), base_height))
-                # bh = base_height
-                # while bh <= 0.0:
-                #     base.append((float(x), float(y), bh))
-                #     bh += 1.0
-
                 vertices.append((float(x), float(y), self._heights[x][y]))
-                # ht = self._heights[x][y]
-                # while ht >= 0.0:
-                #     vertices.append((float(x), float(y), ht))
-                #     ht -= 1.0
-        #
-        # for x in range(self._heights.shape[0]):
-        #     for y in range(self._heights.shape[1]):
-        #         base.append((float(x), float(y), 0.0))
-        #         vertices.append((float(x), float(y), 0.0))
 
         self._base_vertices = np.array(base)
         self._vertices = np.array(vertices)
