@@ -73,10 +73,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         aabb.color = (1, 0, 0)
         obb = pcd.get_oriented_bounding_box()
         obb.color = (0, 1, 0)
-        # o3d.visualization.draw_geometries([pcd, pcd_base], point_show_normal=False)
-        # voxel_grid = o3d.geometry.VoxelGrid.create_dense([0.0, 0.0, 0.0], [0.0, 0.0, 0.0], 0.4, float(self._img.width), float(self._img.height), self._max_height)
-        # voxel_grid = voxel_grid.carve_depth_map(img, o3d.camera.PinholeCameraParameters().extrinsic)
-        # o3d.visualization.draw_geometries([voxel_grid, pcd], mesh_show_back_face=True)
+
         poisson = True
 
         if poisson:  # Mesh from poisson
@@ -88,6 +85,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
             radius = avg_dist * 3
             bpa_mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_ball_pivoting(pcd, o3d.utility.DoubleVector([radius, radius * 2]))
 
+        bpa_mesh = bpa_mesh.crop(o3d.geometry.AxisAlignedBoundingBox([0.0, 0.0, 0.0], [gray.height + 1, gray.width + 1, self._max_height]))
         bpa_mesh = bpa_mesh.compute_vertex_normals()
         bpa_mesh = bpa_mesh.compute_triangle_normals()
         bpa_mesh.remove_degenerate_triangles()
