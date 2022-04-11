@@ -34,13 +34,14 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self._base_height = 10
         self._max_height = 5.0
         self._max_size = 127
+        self._samples = 10
 
         ui_file = QFile('mainwindow.ui')
         ui_file.open(QFile.ReadOnly)
         self._main = uic.loadUi(ui_file, self)
         ui_file.close()
 
-        self.process_image("C:/Cloud/Google/Fab/Artwork/nsfw.png")
+        self.process_image("C:/Cloud/Google/Fab/CNC/3D/bee3D.jpg")
 
         self.imgLayout = self._main.imgLayout
         fig = Figure(figsize=(self._img.width, self._img.height))
@@ -58,6 +59,8 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self._img = ImageOps.scale(self._img, scale, True)
 
         gray = ImageOps.grayscale(self._img)
+        gray = gray.rotate(-90)
+        # gray = ImageOps.flip(gray)
         img = o3d.geometry.Image(matplotlib.image.pil_to_array(gray))
         actual_max_height = np.max(gray.getdata())
         self._heights = np.zeros([gray.height + 2, gray.width + 2])
@@ -66,8 +69,8 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self._get_vertices()
 
         litho = lp.Lithophane()
-        pcd = litho.create_point_cloud_from_vertices(self._vertices, color=[0.5, 0.5, 1.0], display=True, show_back=True)
-        pcd_base = litho.create_point_cloud_from_vertices(self._base_vertices, normal_direction=[0.0, 0.0, -1.0])
+        pcd = litho.create_point_cloud_from_vertices(self._vertices, color=[0.5, 0.5, 1.0], display=True, show_normals=True)
+        pcd_base = litho.create_point_cloud_from_vertices(self._base_vertices, normal_direction=[0.0, 0.0, 1.0])
 
         aabb = pcd.get_axis_aligned_bounding_box()
         aabb.color = (1, 0, 0)
@@ -77,21 +80,22 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         poisson = True
 
         if poisson:  # Mesh from poisson
-            bpa_mesh, _ = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd, depth=10, linear_fit=False, n_threads=-1)
+            bpa_mesh, _ = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd + pcd_base, depth=10, linear_fit=False, n_threads=-1)
             base_mesh, _ = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd_base, depth=10, linear_fit=True, n_threads=-1)
         else:  # Mesh from ball pivot
             distances = pcd.compute_nearest_neighbor_distance()
             avg_dist = np.mean(distances)
             radius = avg_dist * 3
-            bpa_mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_ball_pivoting(pcd, o3d.utility.DoubleVector([radius, radius * 2]))
+            bpa_mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_ball_pivoting(pcd + pcd_base, o3d.utility.DoubleVector([radius, radius * 2]))
 
-        bpa_mesh = bpa_mesh.crop(o3d.geometry.AxisAlignedBoundingBox([0.0, 0.0, 0.0], [gray.height + 1, gray.width + 1, self._max_height]))
+        bpa_mesh = bpa_mesh.crop(o3d.geometry.AxisAlignedBoundingBox([0.0, 0.0, 0.0], [gray.height, gray.width, self._max_height]))
         bpa_mesh = bpa_mesh.compute_vertex_normals()
         bpa_mesh = bpa_mesh.compute_triangle_normals()
         bpa_mesh.remove_degenerate_triangles()
         bpa_mesh = bpa_mesh.remove_non_manifold_edges()
         # bpa_mesh.filter_smooth_taubin()
         o3d.visualization.draw_geometries([bpa_mesh], mesh_show_back_face=False)
+        # o3d.visualization.draw_geometries([base_mesh], mesh_show_back_face=False)
         print(f'mesh.is_edge_manifold = {bpa_mesh.is_edge_manifold()}')
         print(f'mesh.is_vertex_manifold = {bpa_mesh.is_vertex_manifold()}')
         print(f'mesh.is_watertight = {bpa_mesh.is_watertight()}')
@@ -102,13 +106,25 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         vertices = []
         base = []
         base_height = -self._base_height
+        samples = self._samples
+        step = 1 / samples
         for x in range(self._heights.shape[0]):
             for y in range(self._heights.shape[1]):
-                base.append((float(x), float(y), base_height))
-                vertices.append((float(x), float(y), self._heights[x][y]))
+                ht = self._heights[x][y]
+                if x == self._heights.shape[0] - 1 or y == self._heights.shape[1] - 1:
+                    vertices.append((float(x), float(y), ht))
+                    base.append((float(x), float(y), base_height))
+                else:
+                    sample = (self._heights[x+1][y+1] - self._heights[x][y]) / samples
+                    for s in range(samples):
+                        x1 = x + s * step
+                        y1 = y + s * step
+                        vertices.append((float(x1), float(y1), ht + s * sample))
+                        base.append((float(x1), float(y1), base_height))
 
         self._base_vertices = np.array(base)
         self._vertices = np.array(vertices)
+        # self._vertices = np.append(self._vertices, self._base_vertices, axis=0)
 
     @staticmethod
     def _simplify_mesh(mesh_to_simplify):

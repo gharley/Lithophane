@@ -12,7 +12,7 @@ class Lithophane:
         pcd.points = o3d.utility.Vector3dVector(point_cloud)
         pcd.paint_uniform_color(color)
         pcd.estimate_normals()
-        # pcd.orient_normals_consistent_tangent_plane(0)
+        # pcd.orient_normals_consistent_tangent_plane(0)  ## NO NO NO
         pcd.orient_normals_to_align_with_direction(normal_direction)
         # pcd.orient_normals_towards_camera_location(pcd.get_center())
         pcd = pcd.normalize_normals()
