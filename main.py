@@ -19,6 +19,7 @@ from PyQt5.QtCore import QFile
 
 import Lithophane as lp
 
+
 class ApplicationWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
@@ -27,6 +28,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self._img_colors = None
         self._heights = None
         self._base_vertices = None
+        self._bottom_vertices = None
         self._vertices = None
         self._faces = None
         self._model = None
@@ -69,62 +71,73 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self._get_vertices()
 
         litho = lp.Lithophane()
-        pcd = litho.create_point_cloud_from_vertices(self._vertices, color=[0.5, 0.5, 1.0], display=True, show_normals=True)
-        pcd_base = litho.create_point_cloud_from_vertices(self._base_vertices, normal_direction=[0.0, 0.0, 1.0])
+        pcd = litho.create_point_cloud_from_vertices(self._vertices, color=[0.5, 0.5, 1.0], display=True, show_normals=False)
+        pcd_base = litho.create_point_cloud_from_vertices(self._base_vertices, color=[0.0, 1.0, 1.0], normal_direction=[0.0, 0.0, 1.0])
+        pcd_bottom = litho.create_point_cloud_from_vertices(self._bottom_vertices, color=[1.0, 0.0, 1.0], normal_direction=[0.0, 0.0, 1.0])
 
-        aabb = pcd.get_axis_aligned_bounding_box()
-        aabb.color = (1, 0, 0)
-        obb = pcd.get_oriented_bounding_box()
-        obb.color = (0, 1, 0)
-
+        reg_p2l = o3d.pipelines.registration.registration_icp(pcd_base, pcd_bottom, 0.1, estimation_method=o3d.pipelines.registration.TransformationEstimationPointToPlane())
+        pcd_base = pcd_base.transform(reg_p2l.transformation)
+        reg_p2l = o3d.pipelines.registration.registration_icp(pcd, pcd_base, 0.1, estimation_method=o3d.pipelines.registration.TransformationEstimationPointToPlane())
+        pcd = pcd.transform(reg_p2l.transformation)
+        o3d.visualization.draw_geometries([pcd, pcd_base, pcd_bottom])
         poisson = True
 
         if poisson:  # Mesh from poisson
-            bpa_mesh, _ = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd + pcd_base, depth=10, linear_fit=False, n_threads=-1)
-            base_mesh, _ = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd_base, depth=10, linear_fit=True, n_threads=-1)
+            bpa_mesh, _ = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd + pcd_base + pcd_bottom, depth=10, linear_fit=False, n_threads=-1)
+            # base_mesh, _ = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd_base, depth=10, linear_fit=True, n_threads=-1)
         else:  # Mesh from ball pivot
             distances = pcd.compute_nearest_neighbor_distance()
             avg_dist = np.mean(distances)
             radius = avg_dist * 3
             bpa_mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_ball_pivoting(pcd + pcd_base, o3d.utility.DoubleVector([radius, radius * 2]))
 
-        bpa_mesh = bpa_mesh.crop(o3d.geometry.AxisAlignedBoundingBox([0.0, 0.0, 0.0], [gray.height, gray.width, self._max_height]))
+        bpa_mesh = bpa_mesh.crop(o3d.geometry.AxisAlignedBoundingBox([0.0, 0.0, 0.0], [gray.height, gray.width, self._max_height + self._base_height]))
         bpa_mesh = bpa_mesh.compute_vertex_normals()
         bpa_mesh = bpa_mesh.compute_triangle_normals()
         bpa_mesh.remove_degenerate_triangles()
         bpa_mesh = bpa_mesh.remove_non_manifold_edges()
         # bpa_mesh.filter_smooth_taubin()
-        o3d.visualization.draw_geometries([bpa_mesh], mesh_show_back_face=False)
+        o3d.visualization.draw_geometries([bpa_mesh], mesh_show_back_face=True)
         # o3d.visualization.draw_geometries([base_mesh], mesh_show_back_face=False)
         print(f'mesh.is_edge_manifold = {bpa_mesh.is_edge_manifold()}')
         print(f'mesh.is_vertex_manifold = {bpa_mesh.is_vertex_manifold()}')
-        print(f'mesh.is_watertight = {bpa_mesh.is_watertight()}')
+        # print(f'mesh.is_watertight = {bpa_mesh.is_watertight()}')
         # bpa_mesh = self._simplify_mesh(bpa_mesh)
         o3d.io.write_triangle_mesh("C:/Cloud/Google/Fab/Artwork/nsfw.stl", bpa_mesh)
 
     def _get_vertices(self):
         vertices = []
         base = []
-        base_height = -self._base_height
+        bottom = []
+        base_height = self._base_height
         samples = self._samples
         step = 1 / samples
+        base_sample = base_height / samples
+
         for x in range(self._heights.shape[0]):
             for y in range(self._heights.shape[1]):
                 ht = self._heights[x][y]
-                if x == self._heights.shape[0] - 1 or y == self._heights.shape[1] - 1:
-                    vertices.append((float(x), float(y), ht))
-                    base.append((float(x), float(y), base_height))
+                x_limit =  x == self._heights.shape[0] - 1
+                y_limit = y == self._heights.shape[1] - 1
+
+                if x_limit or y_limit:
+                    sample = ht / samples
                 else:
-                    sample = (self._heights[x+1][y+1] - self._heights[x][y]) / samples
-                    for s in range(samples):
-                        x1 = x + s * step
-                        y1 = y + s * step
-                        vertices.append((float(x1), float(y1), ht + s * sample))
-                        base.append((float(x1), float(y1), base_height))
+                    sample = (max(self._heights[x+1][y+1], ht) - min(self._heights[x+1][y+1], ht)) / samples
+
+                for s in range(samples + 1):
+                    if x_limit: x1 = x
+                    else: x1 = x + s * step
+                    if y_limit: y1 = y
+                    else: y1 = y + s * step
+
+                    vertices.append((float(x1), float(y1), float(base_height + s * sample)))
+                    base.append((float(x1), float(y1), float(s * base_sample)))
+                    bottom.append((float(x1), float(y1), 0.0))
 
         self._base_vertices = np.array(base)
+        self._bottom_vertices = np.array(bottom)
         self._vertices = np.array(vertices)
-        # self._vertices = np.append(self._vertices, self._base_vertices, axis=0)
 
     @staticmethod
     def _simplify_mesh(mesh_to_simplify):
