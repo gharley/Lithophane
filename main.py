@@ -115,44 +115,44 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         base_sample = base_height / samples
         rows = np.linspace(0, self._heights.shape[0] - 1, (self._heights.shape[0] - 1) * samples)
         cols = np.linspace(0, self._heights.shape[1] - 1, (self._heights.shape[1] - 1) * samples)
+        base = np.full(rows.shape, base_height)
 
-        rc = np.column_stack((rows, cols))
-        for x2 in range(rc.shape[0] - 1):
-            x = rc[x2][0]
-            y = rc[x2][1]
-
+        self._base_vertices = np.column_stack((rows, cols, base))
+        self._bottom_vertices = np.column_stack((rows, cols, np.zeros(rows.size)))
+        # for x in rows:
+        #     for y in cols:
             # for y in range(rc.shape[1] - 1):
-            base.append((x, y, base_height))
-            bottom.append((x, y, 0.0))
-            x1 = math.floor(x / samples)
-            y1 = math.floor(y / samples)
-            ht = self._heights[x1][y1]
-            vertices.append((x, y, ht + ht * (y - y1) / samples))
+            # base.append((x, y, base_height))
+            # bottom.append((x, y, 0.0))
+            # x1 = math.floor(x / samples)
+            # y1 = math.floor(y / samples)
+            # ht = self._heights[x1][y1]
+            # vertices.append((x, y, ht + ht * (y - y1) / samples))
 
-        # for x in range(self._heights.shape[0] - 1):
-        #     for y in range(self._heights.shape[1] - 1):
-        #         ht = self._heights[x][y]
-        #         x_sample = (self._heights[x+1][y] - ht) / samples
-        #         y_sample = (self._heights[x][y+1] - ht) / samples
-        #
-        #         vertices.append((float(x), float(y), float(base_height + ht)))
-        #         base.append((float(x), float(y), float(base_height)))
-        #         bottom.append((float(x), float(y), 0.0))
-        #
-        #         for s in range(1, samples):
-        #             x1 = x + s * step
-        #             y1 = y + s * step
-        #
-        #             vertices.append((float(x), float(y1), float(base_height + ht + s * x_sample)))
-        #             vertices.append((float(x1), float(y), float(base_height + ht + s * y_sample)))
+        for x in range(self._heights.shape[0] - 1):
+            for y in range(self._heights.shape[1] - 1):
+                ht = self._heights[x][y]
+                x_sample = (self._heights[x+1][y] - ht) / samples
+                y_sample = (self._heights[x][y+1] - ht) / samples
+
+                vertices.append((float(x), float(y), float(base_height + ht)))
+                # base.append((float(x), float(y), float(base_height)))
+                # bottom.append((float(x), float(y), 0.0))
+
+                for s in range(1, samples):
+                    x1 = x + s * step
+                    y1 = y + s * step
+
+                    vertices.append((float(x), float(y1), float(base_height + ht + s * x_sample)))
+                    vertices.append((float(x1), float(y), float(base_height + ht + s * y_sample)))
         #             # base.append((float(x), float(y1), float(s * base_sample)))
         #             # base.append((float(x1), float(y), float(s * base_sample)))
         #             # bottom.append((float(x), float(y1), 0.0))
         #             # bottom.append((float(x1), float(y), 0.0))
 
         self._vertices = np.array(vertices)
-        self._base_vertices = np.array(base)
-        self._bottom_vertices = np.array(bottom)
+        # self._base_vertices = np.array(base)
+        # self._bottom_vertices = np.array(bottom)
 
     @staticmethod
     def _simplify_mesh(mesh_to_simplify):
