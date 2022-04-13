@@ -113,31 +113,46 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         samples = self._samples
         step = 1 / samples
         base_sample = base_height / samples
+        rows = np.linspace(0, self._heights.shape[0] - 1, (self._heights.shape[0] - 1) * samples)
+        cols = np.linspace(0, self._heights.shape[1] - 1, (self._heights.shape[1] - 1) * samples)
 
-        for x in range(self._heights.shape[0]):
-            for y in range(self._heights.shape[1]):
-                ht = self._heights[x][y]
-                x_limit =  x == self._heights.shape[0] - 1
-                y_limit = y == self._heights.shape[1] - 1
+        rc = np.column_stack((rows, cols))
+        for x2 in range(rc.shape[0] - 1):
+            x = rc[x2][0]
+            y = rc[x2][1]
 
-                if x_limit or y_limit:
-                    sample = ht / samples
-                else:
-                    sample = (max(self._heights[x+1][y+1], ht) - min(self._heights[x+1][y+1], ht)) / samples
+            # for y in range(rc.shape[1] - 1):
+            base.append((x, y, base_height))
+            bottom.append((x, y, 0.0))
+            x1 = math.floor(x / samples)
+            y1 = math.floor(y / samples)
+            ht = self._heights[x1][y1]
+            vertices.append((x, y, ht + ht * (y - y1) / samples))
 
-                for s in range(samples + 1):
-                    if x_limit: x1 = x
-                    else: x1 = x + s * step
-                    if y_limit: y1 = y
-                    else: y1 = y + s * step
+        # for x in range(self._heights.shape[0] - 1):
+        #     for y in range(self._heights.shape[1] - 1):
+        #         ht = self._heights[x][y]
+        #         x_sample = (self._heights[x+1][y] - ht) / samples
+        #         y_sample = (self._heights[x][y+1] - ht) / samples
+        #
+        #         vertices.append((float(x), float(y), float(base_height + ht)))
+        #         base.append((float(x), float(y), float(base_height)))
+        #         bottom.append((float(x), float(y), 0.0))
+        #
+        #         for s in range(1, samples):
+        #             x1 = x + s * step
+        #             y1 = y + s * step
+        #
+        #             vertices.append((float(x), float(y1), float(base_height + ht + s * x_sample)))
+        #             vertices.append((float(x1), float(y), float(base_height + ht + s * y_sample)))
+        #             # base.append((float(x), float(y1), float(s * base_sample)))
+        #             # base.append((float(x1), float(y), float(s * base_sample)))
+        #             # bottom.append((float(x), float(y1), 0.0))
+        #             # bottom.append((float(x1), float(y), 0.0))
 
-                    vertices.append((float(x1), float(y1), float(base_height + s * sample)))
-                    base.append((float(x1), float(y1), float(s * base_sample)))
-                    bottom.append((float(x1), float(y1), 0.0))
-
+        self._vertices = np.array(vertices)
         self._base_vertices = np.array(base)
         self._bottom_vertices = np.array(bottom)
-        self._vertices = np.array(vertices)
 
     @staticmethod
     def _simplify_mesh(mesh_to_simplify):
