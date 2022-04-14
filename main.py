@@ -75,9 +75,10 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         pcd_base = litho.create_point_cloud_from_vertices(self._base_vertices, color=[0.0, 1.0, 1.0], normal_direction=[0.0, 0.0, 1.0])
         pcd_bottom = litho.create_point_cloud_from_vertices(self._bottom_vertices, color=[1.0, 0.0, 1.0], normal_direction=[0.0, 0.0, 1.0])
 
-        reg_p2l = o3d.pipelines.registration.registration_icp(pcd_base, pcd_bottom, 0.1, estimation_method=o3d.pipelines.registration.TransformationEstimationPointToPlane())
+        reg_p2l = o3d.pipelines.registration.registration_generalized_icp(pcd_base, pcd_bottom, 0.02)
+        # reg_p2l = o3d.pipelines.registration.registration_icp(pcd_base, pcd_bottom, 0.1, estimation_method=o3d.pipelines.registration.TransformationEstimationPointToPoint())
         pcd_base = pcd_base.transform(reg_p2l.transformation)
-        reg_p2l = o3d.pipelines.registration.registration_icp(pcd, pcd_base, 0.1, estimation_method=o3d.pipelines.registration.TransformationEstimationPointToPlane())
+        reg_p2l = o3d.pipelines.registration.registration_generalized_icp(pcd, pcd_base, 0.02)
         pcd = pcd.transform(reg_p2l.transformation)
         o3d.visualization.draw_geometries([pcd, pcd_base, pcd_bottom])
         poisson = True
@@ -91,7 +92,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
             radius = avg_dist * 3
             bpa_mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_ball_pivoting(pcd + pcd_base, o3d.utility.DoubleVector([radius, radius * 2]))
 
-        bpa_mesh = bpa_mesh.crop(o3d.geometry.AxisAlignedBoundingBox([0.0, 0.0, 0.0], [gray.height, gray.width, self._max_height + self._base_height]))
+        # bpa_mesh = bpa_mesh.crop(o3d.geometry.AxisAlignedBoundingBox([0.0, 0.0, 0.0], [gray.height, gray.width, self._max_height + self._base_height]))
         bpa_mesh = bpa_mesh.compute_vertex_normals()
         bpa_mesh = bpa_mesh.compute_triangle_normals()
         bpa_mesh.remove_degenerate_triangles()
@@ -113,12 +114,12 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         samples = self._samples
         step = 1 / samples
         base_sample = base_height / samples
-        rows = np.linspace(0, self._heights.shape[0] - 1, (self._heights.shape[0] - 1) * samples)
-        cols = np.linspace(0, self._heights.shape[1] - 1, (self._heights.shape[1] - 1) * samples)
-        base = np.full(rows.shape, base_height)
-
-        self._base_vertices = np.column_stack((rows, cols, base))
-        self._bottom_vertices = np.column_stack((rows, cols, np.zeros(rows.size)))
+        # rows = np.linspace(0, self._heights.shape[0] - 1, (self._heights.shape[0] - 1) * samples)
+        # cols = np.linspace(0, self._heights.shape[1] - 1, (self._heights.shape[1] - 1) * samples)
+        # base = np.full(rows.shape, base_height)
+        #
+        # self._base_vertices = np.column_stack((rows, cols, base))
+        # self._bottom_vertices = np.column_stack((rows, cols, np.zeros(rows.size)))
         # for x in rows:
         #     for y in cols:
             # for y in range(rc.shape[1] - 1):
@@ -131,28 +132,35 @@ class ApplicationWindow(QtWidgets.QMainWindow):
 
         for x in range(self._heights.shape[0] - 1):
             for y in range(self._heights.shape[1] - 1):
-                ht = self._heights[x][y]
-                x_sample = (self._heights[x+1][y] - ht) / samples
-                y_sample = (self._heights[x][y+1] - ht) / samples
+                if 0 < x < self._heights.shape[0] - 1 and 0 < y < self._heights.shape[1] - 1:
+                    ht = self._heights[x][y]
+                    x_sample = (self._heights[x+1][y] - ht) / samples
+                    y_sample = (self._heights[x][y+1] - ht) / samples
 
-                vertices.append((float(x), float(y), float(base_height + ht)))
-                # base.append((float(x), float(y), float(base_height)))
-                # bottom.append((float(x), float(y), 0.0))
+                    vertices.append((float(x), float(y), float(base_height + ht)))
+                    base.append((float(x), float(y), float(base_height)))
+                    # base.append((float(x), float(y), float(0)))
+                    bottom.append((float(x), float(y), 0.0))
 
-                for s in range(1, samples):
-                    x1 = x + s * step
-                    y1 = y + s * step
+                    for s in range(1, samples):
+                        x1 = x + s * step
+                        y1 = y + s * step
 
-                    vertices.append((float(x), float(y1), float(base_height + ht + s * x_sample)))
-                    vertices.append((float(x1), float(y), float(base_height + ht + s * y_sample)))
-        #             # base.append((float(x), float(y1), float(s * base_sample)))
-        #             # base.append((float(x1), float(y), float(s * base_sample)))
-        #             # bottom.append((float(x), float(y1), 0.0))
-        #             # bottom.append((float(x1), float(y), 0.0))
+                        # vertices.append((float(x), float(y1), float(base_height + ht + s * x_sample)))
+                        vertices.append((float(x1), float(y), float(base_height + ht + s * y_sample)))
+            #             # base.append((float(x), float(y1), float(s * base_sample)))
+                        base.append((float(x1), float(y), float(base_height)))
+                        # base.append((float(x1), float(y), float(0)))
+            #             # bottom.append((float(x), float(y1), 0.0))
+                        bottom.append((float(x1), float(y), 0.0))
+                else:
+                    vertices.append((float(x), float(y), 0.0))
+                    base.append((float(x), float(y), 0.0))
+                    bottom.append((float(x), float(y), 0.0))
 
         self._vertices = np.array(vertices)
-        # self._base_vertices = np.array(base)
-        # self._bottom_vertices = np.array(bottom)
+        self._base_vertices = np.array(base)
+        self._bottom_vertices = np.array(bottom)
 
     @staticmethod
     def _simplify_mesh(mesh_to_simplify):
