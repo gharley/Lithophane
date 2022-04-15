@@ -63,42 +63,40 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         gray = ImageOps.grayscale(self._img)
         gray = gray.rotate(-90)
         # gray = ImageOps.flip(gray)
-        img = o3d.geometry.Image(matplotlib.image.pil_to_array(gray))
+        img = o3d.geometry.Image(matplotlib.image.pil_to_array(gray).astype(np.uint8))
         actual_max_height = np.max(gray.getdata())
         self._heights = np.zeros([gray.height + 2, gray.width + 2])
         self._heights[1:-1, 1:-1] = img / actual_max_height * self._max_height
 
         self._get_vertices()
-
         litho = lp.Lithophane()
-        pcd = litho.create_point_cloud_from_vertices(self._vertices, color=[0.5, 0.5, 1.0], display=True, show_normals=False)
-        pcd_base = litho.create_point_cloud_from_vertices(self._base_vertices, color=[0.0, 1.0, 1.0], normal_direction=[0.0, 0.0, 1.0])
-        pcd_bottom = litho.create_point_cloud_from_vertices(self._bottom_vertices, color=[1.0, 0.0, 1.0], normal_direction=[0.0, 0.0, 1.0])
+        pcd = litho.create_point_cloud_from_vertices(self._vertices, color=[0.5, 0.5, 1.0], display=False, show_normals=False)
+        pcd_base = litho.create_point_cloud_from_vertices(self._base_vertices, color=[0.0, 1.0, 1.0], display=True, normal_direction=[0.0, 0.0, 1.0])
+        pcd_bottom = litho.create_point_cloud_from_vertices(self._bottom_vertices, color=[1.0, 0.0, 1.0], display=True, normal_direction=[0.0, 0.0, 1.0])
 
-        reg_p2l = o3d.pipelines.registration.registration_generalized_icp(pcd_base, pcd_bottom, 0.02)
         # reg_p2l = o3d.pipelines.registration.registration_icp(pcd_base, pcd_bottom, 0.1, estimation_method=o3d.pipelines.registration.TransformationEstimationPointToPoint())
-        pcd_base = pcd_base.transform(reg_p2l.transformation)
-        reg_p2l = o3d.pipelines.registration.registration_generalized_icp(pcd, pcd_base, 0.02)
-        pcd = pcd.transform(reg_p2l.transformation)
-        o3d.visualization.draw_geometries([pcd, pcd_base, pcd_bottom])
+        # pcd_base = pcd_base.transform(reg_p2l.transformation)
+        # reg_p2l = o3d.pipelines.registration.registration_icp(pcd, pcd_base, 0.1, estimation_method=o3d.pipelines.registration.TransformationEstimationPointToPoint())
+        # pcd = pcd.transform(reg_p2l.transformation)
+        # o3d.visualization.draw_geometries([pcd, pcd_base, pcd_bottom])
         poisson = True
 
         if poisson:  # Mesh from poisson
-            bpa_mesh, _ = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd + pcd_base + pcd_bottom, depth=10, linear_fit=False, n_threads=-1)
-            # base_mesh, _ = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd_base, depth=10, linear_fit=True, n_threads=-1)
+            # bpa_mesh, _ = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd + pcd_base + pcd_bottom, depth=10, linear_fit=False, n_threads=-1)
+            base_mesh, _ = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd_base, depth=0, width=.1, linear_fit=False, n_threads=-1)
         else:  # Mesh from ball pivot
             distances = pcd.compute_nearest_neighbor_distance()
             avg_dist = np.mean(distances)
             radius = avg_dist * 3
             bpa_mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_ball_pivoting(pcd + pcd_base, o3d.utility.DoubleVector([radius, radius * 2]))
 
-        # bpa_mesh = bpa_mesh.crop(o3d.geometry.AxisAlignedBoundingBox([0.0, 0.0, 0.0], [gray.height, gray.width, self._max_height + self._base_height]))
-        bpa_mesh = bpa_mesh.compute_vertex_normals()
-        bpa_mesh = bpa_mesh.compute_triangle_normals()
-        bpa_mesh.remove_degenerate_triangles()
-        bpa_mesh = bpa_mesh.remove_non_manifold_edges()
+        # bpa_mesh = bpa_mesh.crop(o3d.geometry.AxisAlignedBoundingBox([0.0, 0.0, 0.0], [gray.height + 1, gray.width + 1, self._max_height + self._base_height]))
+        # bpa_mesh = bpa_mesh.compute_vertex_normals()
+        # bpa_mesh = bpa_mesh.compute_triangle_normals()
+        # bpa_mesh.remove_degenerate_triangles()
+        # bpa_mesh = bpa_mesh.remove_non_manifold_edges()
         # bpa_mesh.filter_smooth_taubin()
-        o3d.visualization.draw_geometries([bpa_mesh], mesh_show_back_face=True)
+        o3d.visualization.draw_geometries([base_mesh], mesh_show_back_face=True)
         # o3d.visualization.draw_geometries([base_mesh], mesh_show_back_face=False)
         print(f'mesh.is_edge_manifold = {bpa_mesh.is_edge_manifold()}')
         print(f'mesh.is_vertex_manifold = {bpa_mesh.is_vertex_manifold()}')
@@ -130,32 +128,46 @@ class ApplicationWindow(QtWidgets.QMainWindow):
             # ht = self._heights[x1][y1]
             # vertices.append((x, y, ht + ht * (y - y1) / samples))
 
-        for x in range(self._heights.shape[0] - 1):
-            for y in range(self._heights.shape[1] - 1):
-                if 0 < x < self._heights.shape[0] - 1 and 0 < y < self._heights.shape[1] - 1:
+        x_limit = self._heights.shape[0]
+        y_limit = self._heights.shape[1]
+        base = [(0.0, 0.0, base_height), (0.0, y_limit - 1, base_height),
+                (x_limit - 1, y_limit - 1, base_height), (x_limit - 1, 0.0, base_height),
+                (0.0, 0.0, 0.0), (0.0, y_limit - 1, 0.0),
+                (x_limit - 1, y_limit - 1, 0.0), (x_limit - 1, 0.0, 0.0)]
+
+        for x in range(x_limit - 1):
+            for y in range(y_limit - 1):
+                if 0 < x < x_limit - 1 and 0 < y < y_limit - 1:
+                    # base.append((float(x), float(y), float(base_height)))
+                    # base.append((float(x), float(y), 0.0))
+                    bottom.append((float(x), float(y), 0.0))
+
                     ht = self._heights[x][y]
                     x_sample = (self._heights[x+1][y] - ht) / samples
                     y_sample = (self._heights[x][y+1] - ht) / samples
 
                     vertices.append((float(x), float(y), float(base_height + ht)))
-                    base.append((float(x), float(y), float(base_height)))
-                    # base.append((float(x), float(y), float(0)))
-                    bottom.append((float(x), float(y), 0.0))
+                    vertices.append((float(x), float(y+1), float(base_height + ht)))
+                    vertices.append((float(x), float(y), float(base_height)))
+                    vertices.append((float(x), float(y+1), float(base_height)))
 
                     for s in range(1, samples):
                         x1 = x + s * step
                         y1 = y + s * step
 
-                        # vertices.append((float(x), float(y1), float(base_height + ht + s * x_sample)))
-                        vertices.append((float(x1), float(y), float(base_height + ht + s * y_sample)))
-            #             # base.append((float(x), float(y1), float(s * base_sample)))
-                        base.append((float(x1), float(y), float(base_height)))
+                        vertices.append((float(x1), float(y), float(base_height + ht + s * x_sample)))
+                        vertices.append((float(x), float(y1), float(base_height + ht + s * y_sample)))
+                        vertices.append((float(x1), float(y), float(base_height)))
+                        vertices.append((float(x), float(y1), float(base_height)))
+                        # base.append((float(x1), float(y), float(base_sample * s)))
+                        # base.append((float(x), float(y1), float(base_sample * s)))
                         # base.append((float(x1), float(y), float(0)))
-            #             # bottom.append((float(x), float(y1), 0.0))
+                        # base.append((float(x), float(y1), float(0)))
                         bottom.append((float(x1), float(y), 0.0))
+                        bottom.append((float(x), float(y1), 0.0))
                 else:
                     vertices.append((float(x), float(y), 0.0))
-                    base.append((float(x), float(y), 0.0))
+                    # base.append((float(x), float(y), 0.0))
                     bottom.append((float(x), float(y), 0.0))
 
         self._vertices = np.array(vertices)
