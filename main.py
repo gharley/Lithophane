@@ -91,14 +91,14 @@ class ApplicationWindow(QtWidgets.QMainWindow):
             bpa_mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_ball_pivoting(pcd, o3d.utility.DoubleVector([radius, radius * 2]))
 
         bpa_mesh += base_mesh
-        bpa_mesh = bpa_mesh.crop(o3d.geometry.AxisAlignedBoundingBox([0.0, 0.0, 0.0], [gray.height, gray.width, self._max_height + self._base_height]))
         bpa_mesh = bpa_mesh.compute_vertex_normals()
         bpa_mesh = bpa_mesh.compute_triangle_normals()
+        bpa_mesh.merge_close_vertices(0.1)
+        bpa_mesh = bpa_mesh.crop(o3d.geometry.AxisAlignedBoundingBox([0.0, 0.0, 0.0], [gray.height, gray.width, self._max_height + self._base_height]))
         bpa_mesh.remove_degenerate_triangles()
         bpa_mesh = bpa_mesh.remove_non_manifold_edges()
         # bpa_mesh.filter_smooth_taubin()
         o3d.visualization.draw_geometries([bpa_mesh], mesh_show_back_face=True)
-        # o3d.visualization.draw_geometries([base_mesh], mesh_show_back_face=False)
         print(f'mesh.is_edge_manifold = {bpa_mesh.is_edge_manifold()}')
         print(f'mesh.is_vertex_manifold = {bpa_mesh.is_vertex_manifold()}')
         # print(f'mesh.is_watertight = {bpa_mesh.is_watertight()}')
