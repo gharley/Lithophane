@@ -56,7 +56,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         litho = lp.Lithophane()
 
         self._vertices = litho.prepare_image(filename, self._base_height, self._max_height, self._max_size, self._samples)
-        pcd = litho.create_point_cloud_from_vertices(self._vertices, color=[0.5, 0.5, 1.0], display=False, show_normals=False)
+        pcd = litho.create_point_cloud_from_vertices(self._vertices, color=[0.0, 1.0, 1.0], display=True, show_normals=False)
         pcd = litho.scale_to_final_size(pcd, self._max_size)
         bpa_mesh = litho.create_mesh_from_point_cloud(pcd, self._base_height, self._max_height)
         o3d.io.write_triangle_mesh("C:/Cloud/Google/Fab/Artwork/nsfw.stl", bpa_mesh)

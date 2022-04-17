@@ -15,12 +15,13 @@ class Lithophane:
         # pcd = pcd.uniform_down_sample(math.ceil(1/voxel_size))
         pcd = pcd.voxel_down_sample(voxel_size)
         pcd.estimate_normals()
-        mesh, _ = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd, depth=10, linear_fit=False, n_threads=-1)
+        mesh, distances = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd, depth=10, linear_fit=False, n_threads=-1)
 
-        distance =0.1
+        distance = 0.1
         bound = pcd.get_max_bound()
         if 0 < base_height:
             base_mesh = o3d.geometry.TriangleMesh.create_box(bound[0], bound[1], base_height)
+            base_mesh.paint_uniform_color([1.0, 1.0, 0])
             base_mesh = base_mesh.compute_vertex_normals()
             base_mesh = base_mesh.compute_triangle_normals()
             mesh += base_mesh
@@ -30,12 +31,12 @@ class Lithophane:
         mesh = mesh.remove_duplicated_triangles()
         mesh = mesh.compute_vertex_normals()
         mesh = mesh.compute_triangle_normals()
-        # mesh.merge_close_vertices(distance)
+        mesh = mesh.remove_non_manifold_edges()
+        mesh.merge_close_vertices(distance)
         mesh = mesh.crop(o3d.geometry.AxisAlignedBoundingBox([0.0, 0.0, 0.0], [bound[0], bound[1], max_height + base_height]))
-        # mesh = bpa_mesh.remove_non_manifold_edges()
-        mesh.filter_smooth_taubin()
-        # print(f'mesh.is_edge_manifold = {mesh.is_edge_manifold()}')
-        # print(f'mesh.is_vertex_manifold = {mesh.is_vertex_manifold()}')
+        # mesh.filter_smooth_taubin()
+        print(f'mesh.is_edge_manifold = {mesh.is_edge_manifold()}')
+        print(f'mesh.is_vertex_manifold = {mesh.is_vertex_manifold()}')
         # print(f'mesh.is_watertight = {mesh.is_watertight()}')
         o3d.visualization.draw_geometries([mesh], mesh_show_back_face=True)
         mesh = self._simplify_mesh(mesh, voxel_size)
@@ -61,17 +62,17 @@ class Lithophane:
     def _get_vertices(heights, base_height):
         vertices = []
 
-        x_limit = heights.shape[0]
-        y_limit = heights.shape[1]
+        row_limit = heights.shape[0]
+        column_limit = heights.shape[1]
 
-        for x in range(x_limit - 1):
-            for y in range(y_limit - 1):
-                if 0 < x < x_limit - 1 and 0 < y < y_limit - 1:
-                    ht = heights[x][y]
-                    vertices.append((float(x), float(y), float(base_height + ht)))
-                    vertices.append((float(x), float(y), float(base_height)))
+        for row in range(row_limit - 1):
+            for column in range(column_limit - 1):
+                if 0 < row < row_limit - 1 and 0 < column < column_limit - 1:
+                    ht = heights[row][column]
+                    vertices.append((float(row), float(column), float(base_height + ht)))
+                    vertices.append((float(row), float(column), float(0.0)))
                 else:
-                    vertices.append((float(x), float(y), 0.0))
+                    vertices.append((float(row), float(column), 0.0))
 
         return np.array(vertices)
 
@@ -79,9 +80,10 @@ class Lithophane:
         img = Image.open(filename)
 
         scale = max_size / min(img.width, img.height) * samples
-        gray = ImageOps.scale(ImageOps.grayscale(img), scale, True).rotate(-90)
+        gray = ImageOps.scale(ImageOps.grayscale(img), scale, True)
         gray = ImageOps.invert(gray)
-        actual_max_height = np.max(gray.getdata())
+        data = gray.getdata()
+        actual_max_height = np.max(data)
         heights = np.zeros([gray.height + 2, gray.width + 2])
         heights[1:-1, 1:-1] = gray / actual_max_height * max_height
 
