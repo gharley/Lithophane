@@ -31,7 +31,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self._faces = None
         self._model = None
 
-        self._base_height = 1
+        self._base_height = 0.01
         self._max_height = 5.0
         self._max_size = 127
         self._samples = 5
@@ -43,110 +43,23 @@ class ApplicationWindow(QtWidgets.QMainWindow):
 
         self.process_image("C:/Cloud/Google/Fab/CNC/3D/bee3D.jpg")
 
-        self.imgLayout = self._main.imgLayout
-        fig = Figure(figsize=(self._img.width, self._img.height))
-        fig.figimage(self._img, cmap='gray')
-        static_canvas = FigureCanvas(fig)
-        self._main.imgLayout.addWidget(static_canvas)
+        # self.imgLayout = self._main.imgLayout
+        # fig = Figure(figsize=(self._img.width, self._img.height))
+        # fig.figimage(self._img, cmap='gray')
+        # static_canvas = FigureCanvas(fig)
+        # self._main.imgLayout.addWidget(static_canvas)
 
         # dynamic_canvas = FigureCanvas(Figure(figsize=(self._img.width, self._img.height)))
         # self.imgLayout.addWidget(dynamic_canvas)
 
     def process_image(self, filename):
-        self._img = Image.open(filename)
-
-        scale = self._max_size / max(self._img.width, self._img.height) * self._samples
-        self._img = ImageOps.scale(self._img, scale, True)
-
-        gray = ImageOps.grayscale(self._img)
-        gray = gray.rotate(-90)
-        # gray = ImageOps.flip(gray)
-        img = o3d.geometry.Image(matplotlib.image.pil_to_array(gray).astype(np.uint8))
-        actual_max_height = np.max(gray.getdata())
-        self._heights = np.zeros([gray.height + 2, gray.width + 2])
-        self._heights[1:-1, 1:-1] = img / actual_max_height * self._max_height
-
-        self._get_vertices()
         litho = lp.Lithophane()
+
+        self._vertices = litho.prepare_image(filename, self._base_height, self._max_height, self._max_size, self._samples)
         pcd = litho.create_point_cloud_from_vertices(self._vertices, color=[0.5, 0.5, 1.0], display=False, show_normals=False)
-        bound = pcd.get_max_bound()
-        scale = self._max_size / max(bound[0], bound[1])
-        matrix = np.array([
-            [scale, 0,  0,  0],
-            [0,  scale, 0,  0],
-            [0,  0,  1.0, 0],
-            [0,  0,  0,  1]])
-        pcd = pcd.transform(matrix)
-
-        poisson = True
-
-        if poisson:  # Mesh from poisson
-            bpa_mesh, _ = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd, depth=10, linear_fit=False, n_threads=-1)
-        else:  # Mesh from ball pivot
-            distances = pcd.compute_nearest_neighbor_distance()
-            avg_dist = np.mean(distances)
-            radius = avg_dist * 3
-            bpa_mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_ball_pivoting(pcd, o3d.utility.DoubleVector([radius, radius * 2]))
-
-        bound = pcd.get_max_bound()
-        if 0 < self._base_height:
-            base_mesh = o3d.geometry.TriangleMesh.create_box(bound[0], bound[1], self._base_height)
-            bpa_mesh += base_mesh
-
-        bpa_mesh = bpa_mesh.compute_vertex_normals()
-        bpa_mesh = bpa_mesh.compute_triangle_normals()
-        bpa_mesh.merge_close_vertices(0.1)
-        bpa_mesh = bpa_mesh.crop(o3d.geometry.AxisAlignedBoundingBox([0.0, 0.0, 0.0], [bound[0], bound[1], self._max_height + self._base_height]))
-        bpa_mesh.remove_degenerate_triangles()
-        # bpa_mesh = bpa_mesh.remove_non_manifold_edges()
-        # bpa_mesh.filter_smooth_taubin()
-        o3d.visualization.draw_geometries([bpa_mesh], mesh_show_back_face=True)
-        print(f'mesh.is_edge_manifold = {bpa_mesh.is_edge_manifold()}')
-        print(f'mesh.is_vertex_manifold = {bpa_mesh.is_vertex_manifold()}')
-        # print(f'mesh.is_watertight = {bpa_mesh.is_watertight()}')
-        # bpa_mesh = self._simplify_mesh(bpa_mesh)
+        pcd = litho.scale_to_final_size(pcd, self._max_size)
+        bpa_mesh = litho.create_mesh_from_point_cloud(pcd, self._base_height, self._max_height)
         o3d.io.write_triangle_mesh("C:/Cloud/Google/Fab/Artwork/nsfw.stl", bpa_mesh)
-
-    def _get_vertices(self):
-        vertices = []
-        base_height = self._base_height
-
-        x_limit = self._heights.shape[0]
-        y_limit = self._heights.shape[1]
-
-        for x in range(x_limit - 1):
-            for y in range(y_limit - 1):
-                if 0 < x < x_limit - 1 and 0 < y < y_limit - 1:
-                    ht = self._heights[x][y]
-                    vertices.append((float(x), float(y), float(base_height + ht)))
-                    vertices.append((float(x), float(y+1), float(base_height + ht)))
-                    # vertices.append((float(x), float(y), float(base_height)))
-                    # vertices.append((float(x), float(y+1), float(base_height)))
-                else:
-                    vertices.append((float(x), float(y), 0.0))
-
-        self._vertices = np.array(vertices)
-
-    @staticmethod
-    def _simplify_mesh(mesh_to_simplify):
-        voxel_size = 0.5  # max(bpa_mesh.get_max_bound() - bpa_mesh.get_min_bound()) / 64
-        print(f'voxel_size = {voxel_size:e}')
-        print(
-            f'Base mesh has {len(mesh_to_simplify.vertices)} vertices and {len(mesh_to_simplify.triangles)} triangles'
-        )
-        simple_mesh = mesh_to_simplify.simplify_vertex_clustering(
-            voxel_size=voxel_size,
-            contraction=o3d.geometry.SimplificationContraction.Average)
-        simple_mesh = simple_mesh.compute_vertex_normals()
-        simple_mesh = simple_mesh.compute_triangle_normals()
-        print(
-            f'Simplified mesh has {len(simple_mesh.vertices)} vertices and {len(simple_mesh.triangles)} triangles'
-        )
-        print(f'mesh.is_edge_manifold = {simple_mesh.is_edge_manifold()}')
-        print(f'mesh.is_vertex_manifold = {simple_mesh.is_vertex_manifold()}')
-        o3d.visualization.draw_geometries([simple_mesh], mesh_show_back_face=True)
-
-        return simple_mesh
 
 
 if __name__ == "__main__":
