@@ -31,7 +31,7 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self._faces = None
         self._model = None
 
-        self._base_height = 0
+        self._base_height = 1
         self._max_height = 5.0
         self._max_size = 127
         self._samples = 5
@@ -71,12 +71,14 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         pcd = litho.create_point_cloud_from_vertices(self._vertices, color=[0.5, 0.5, 1.0], display=False, show_normals=False)
         bound = pcd.get_max_bound()
         scale = self._max_size / max(bound[0], bound[1])
-        pcd = pcd.scale(scale, pcd.get_center())
+        matrix = np.array([
+            [scale, 0,  0,  0],
+            [0,  scale, 0,  0],
+            [0,  0,  1.0, 0],
+            [0,  0,  0,  1]])
+        pcd = pcd.transform(matrix)
 
         poisson = True
-
-        bound = pcd.get_max_bound()
-        base_mesh = o3d.geometry.TriangleMesh.create_box(bound[0], bound[1], self._base_height + actual_max_height)
 
         if poisson:  # Mesh from poisson
             bpa_mesh, _ = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd, depth=10, linear_fit=False, n_threads=-1)
@@ -86,13 +88,17 @@ class ApplicationWindow(QtWidgets.QMainWindow):
             radius = avg_dist * 3
             bpa_mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_ball_pivoting(pcd, o3d.utility.DoubleVector([radius, radius * 2]))
 
-        bpa_mesh += base_mesh
+        bound = pcd.get_max_bound()
+        if 0 < self._base_height:
+            base_mesh = o3d.geometry.TriangleMesh.create_box(bound[0], bound[1], self._base_height)
+            bpa_mesh += base_mesh
+
         bpa_mesh = bpa_mesh.compute_vertex_normals()
         bpa_mesh = bpa_mesh.compute_triangle_normals()
         bpa_mesh.merge_close_vertices(0.1)
-        # bpa_mesh = bpa_mesh.crop(o3d.geometry.AxisAlignedBoundingBox([0.0, 0.0, 0.0], [gray.height, gray.width, self._max_height + self._base_height]))
+        bpa_mesh = bpa_mesh.crop(o3d.geometry.AxisAlignedBoundingBox([0.0, 0.0, 0.0], [bound[0], bound[1], self._max_height + self._base_height]))
         bpa_mesh.remove_degenerate_triangles()
-        bpa_mesh = bpa_mesh.remove_non_manifold_edges()
+        # bpa_mesh = bpa_mesh.remove_non_manifold_edges()
         # bpa_mesh.filter_smooth_taubin()
         o3d.visualization.draw_geometries([bpa_mesh], mesh_show_back_face=True)
         print(f'mesh.is_edge_manifold = {bpa_mesh.is_edge_manifold()}')
