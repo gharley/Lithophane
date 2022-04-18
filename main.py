@@ -1,26 +1,20 @@
-import math
+import os
 import sys
-import time
+import json
 
-import matplotlib.image
-import numpy as np
-from stl import mesh
 import open3d as o3d
 
 from matplotlib.backends.qt_compat import QtWidgets
-from matplotlib.backends.backend_qt5agg import (
-    FigureCanvas)
-from matplotlib.figure import Figure
-from matplotlib import pyplot
-from mpl_toolkits import mplot3d
-from PIL import Image, ImageOps
+
 from PyQt5 import uic
 from PyQt5.QtCore import QFile
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QLabel, QComboBox, QLineEdit, QCheckBox, QFileDialog
 
+from common import DotDict
 import Lithophane as lp
 
 
-class ApplicationWindow(QtWidgets.QMainWindow):
+class Main(QMainWindow):
     def __init__(self):
         super().__init__()
 
@@ -36,12 +30,8 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         self._max_size = 127
         self._samples = 5
 
-        ui_file = QFile('mainwindow.ui')
-        ui_file.open(QFile.ReadOnly)
-        self._main = uic.loadUi(ui_file, self)
-        ui_file.close()
-
-        self.process_image("C:/Cloud/Google/Fab/CNC/3D/bee3D.jpg")
+        self._load_config()
+        self._load_ui()
 
         # self.imgLayout = self._main.imgLayout
         # fig = Figure(figsize=(self._img.width, self._img.height))
@@ -52,7 +42,36 @@ class ApplicationWindow(QtWidgets.QMainWindow):
         # dynamic_canvas = FigureCanvas(Figure(figsize=(self._img.width, self._img.height)))
         # self.imgLayout.addWidget(dynamic_canvas)
 
-    def process_image(self, filename):
+    def _init_connections(self):
+        self.actionOpen.triggered.connect(self.process_image)
+
+    def _load_config(self):
+        if os.path.exists('config.json'):
+            with open('config.json', 'r') as in_file:
+                self.config = DotDict(json.load(in_file))
+
+    def _load_ui(self):
+        ui_file = QFile('mainwindow.ui')
+        # ui_file = QFile(':resources/mainwindow.ui')
+        ui_file.open(QFile.ReadOnly)
+        self._main = uic.loadUi(ui_file, self)
+        ui_file.close()
+
+        self._init_connections()
+
+        self.show()
+
+        # style_sheet = QFile(':resources/form.qss')
+        # if style_sheet.exists():
+        #     style_sheet.open(QFile.ReadOnly)
+        #     style = str(style_sheet.readAll(), 'utf-8')
+        #     self.setStyleSheet(style)
+        #     style_sheet.close()
+        #
+        # self.setWindowIcon(QIcon(':images/end_all.svg'))
+
+    def process_image(self):
+        filename = "C:/Cloud/Google/Fab/CNC/3D/bee3D.jpg"
         litho = lp.Lithophane()
 
         self._vertices = litho.prepare_image(filename, self._base_height, self._max_height, self._max_size, self._samples)
@@ -63,14 +82,6 @@ class ApplicationWindow(QtWidgets.QMainWindow):
 
 
 if __name__ == "__main__":
-    # Check whether there is already a running QApplication (e.g., if running
-    # from an IDE).
-    qapp = QtWidgets.QApplication.instance()
-    if not qapp:
-        qapp = QtWidgets.QApplication(sys.argv)
-
-    app = ApplicationWindow()
-    app.show()
-    app.activateWindow()
-    app.raise_()
-    qapp.exec()
+    app = QApplication([])
+    main_window = Main()
+    sys.exit(app.exec_())

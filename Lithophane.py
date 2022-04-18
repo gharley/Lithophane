@@ -69,10 +69,11 @@ class Lithophane:
             for column in range(column_limit - 1):
                 if 0 < row < row_limit - 1 and 0 < column < column_limit - 1:
                     ht = heights[row][column]
-                    vertices.append((float(row), float(column), float(base_height + ht)))
+                    vertices.append((float(row), float(column), float(ht)))
                     vertices.append((float(row), float(column), float(0.0)))
-                else:
-                    vertices.append((float(row), float(column), 0.0))
+                # else:
+                #     vertices.append((float(row), float(column), float(5)))
+                #     vertices.append((float(row), float(column), 0.0))
 
         return np.array(vertices)
 
