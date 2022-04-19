@@ -28,7 +28,7 @@ class Main(QMainWindow):
         self._base_height = 0.01
         self._max_height = 5.0
         self._max_size = 127
-        self._samples = 5
+        self._samples = 2
 
         self._load_config()
         self._load_ui()
