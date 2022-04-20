@@ -2,6 +2,7 @@ import math
 
 import numpy as np
 import open3d as o3d
+import pyvista as pv
 from PIL import Image, ImageOps
 
 
@@ -10,51 +11,65 @@ class Lithophane:
         pass
 
     def create_mesh_from_point_cloud(self, pcd, props):
-        voxel_size = 1000000 / np.asarray(pcd.points).size
-        # pcd = pcd.random_down_sample(voxel_size)
-        # pcd = pcd.uniform_down_sample(math.ceil(1/voxel_size))
-        pcd = pcd.voxel_down_sample(voxel_size)
-        pcd.estimate_normals()
-        mesh, distances = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd, depth=10, linear_fit=False, n_threads=-1)
+        mesh = pcd.delaunay_2d()
+        # top = pcd.points.copy()
+        # bottom = pcd.points.copy()
+        # bottom[:, -1] = -1.0
+        # mesh.points = np.vstack((top, bottom))
+        # mesh.dimensions = [100, 100, 5]
+        mesh.plot(show_edges=True, show_grid=True)
 
-        distance = 0.1
-        bound = pcd.get_max_bound()
-        if 0 < props.baseHeight or 0 < props.minHeight:
-            base_mesh = o3d.geometry.TriangleMesh.create_box(bound[0], bound[1], props.baseHeight + props.minHeight)
-            base_mesh.paint_uniform_color([1.0, 1.0, 0])
-            base_mesh = base_mesh.compute_vertex_normals()
-            base_mesh = base_mesh.compute_triangle_normals()
-            mesh += base_mesh
-
-        mesh = mesh.remove_duplicated_vertices()
-        mesh.remove_degenerate_triangles()
-        mesh = mesh.remove_duplicated_triangles()
-        mesh = mesh.compute_vertex_normals()
-        mesh = mesh.compute_triangle_normals()
-        mesh = mesh.remove_non_manifold_edges()
-        mesh.merge_close_vertices(distance)
-        mesh = mesh.crop(o3d.geometry.AxisAlignedBoundingBox([0.0, 0.0, 0.0], [bound[0], bound[1], props.maxHeight + props.baseHeight + props.minHeight]))
-        # mesh.filter_smooth_taubin()
-        print(f'mesh.is_edge_manifold = {mesh.is_edge_manifold()}')
-        print(f'mesh.is_vertex_manifold = {mesh.is_vertex_manifold()}')
-        # print(f'mesh.is_watertight = {mesh.is_watertight()}')
-        o3d.visualization.draw_geometries([mesh], mesh_show_back_face=True)
-        mesh = self._simplify_mesh(mesh, voxel_size)
+        # voxel_size = 1000000 / np.asarray(pcd.points).size
+        # # pcd = pcd.random_down_sample(voxel_size)
+        # # pcd = pcd.uniform_down_sample(math.ceil(1/voxel_size))
+        # pcd = pcd.voxel_down_sample(voxel_size)
+        # pcd.estimate_normals()
+        # mesh, distances = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(pcd, depth=10, linear_fit=False, n_threads=-1)
+        #
+        # distance = 0.1
+        # bound = pcd.get_max_bound()
+        # if 0 < props.baseHeight or 0 < props.minHeight:
+        #     base_mesh = o3d.geometry.TriangleMesh.create_box(bound[0], bound[1], props.baseHeight + props.minHeight)
+        #     base_mesh.paint_uniform_color([1.0, 1.0, 0])
+        #     base_mesh = base_mesh.compute_vertex_normals()
+        #     base_mesh = base_mesh.compute_triangle_normals()
+        #     mesh += base_mesh
+        #
+        # mesh = mesh.remove_duplicated_vertices()
+        # mesh.remove_degenerate_triangles()
+        # mesh = mesh.remove_duplicated_triangles()
+        # mesh = mesh.compute_vertex_normals()
+        # mesh = mesh.compute_triangle_normals()
+        # mesh = mesh.remove_non_manifold_edges()
+        # mesh.merge_close_vertices(distance)
+        # mesh = mesh.crop(o3d.geometry.AxisAlignedBoundingBox([0.0, 0.0, 0.0], [bound[0], bound[1], props.maxHeight + props.baseHeight + props.minHeight]))
+        # # mesh.filter_smooth_taubin()
+        # print(f'mesh.is_edge_manifold = {mesh.is_edge_manifold()}')
+        # print(f'mesh.is_vertex_manifold = {mesh.is_vertex_manifold()}')
+        # # print(f'mesh.is_watertight = {mesh.is_watertight()}')
+        # o3d.visualization.draw_geometries([mesh], mesh_show_back_face=True)
+        # mesh = self._simplify_mesh(mesh, voxel_size)
 
         return mesh
 
     @staticmethod
     def create_point_cloud_from_vertices(vertices, color=[0.0, 0.0, 0.0], normal_direction=[0.0, 0.0, 1.0], display=False, show_normals=False, show_back=False):
-        pcd = o3d.geometry.PointCloud()
-        point_cloud = np.asarray(vertices)
-        pcd.points = o3d.utility.Vector3dVector(point_cloud)
-        pcd.paint_uniform_color(color)
-        pcd.estimate_normals()
-        pcd.orient_normals_to_align_with_direction(normal_direction)
-        pcd = pcd.normalize_normals()
+        pcd = pv.PolyData(vertices)
+
+        # pcd = o3d.geometry.PointCloud()
+        # point_cloud = np.asarray(vertices)
+        # pcd.points = o3d.utility.Vector3dVector(point_cloud)
+        # pcd.paint_uniform_color(color)
+        # pcd.estimate_normals()
+        # pcd.orient_normals_to_align_with_direction(normal_direction)
+        # pcd = pcd.normalize_normals()
 
         if display:
-            o3d.visualization.draw_geometries([pcd], point_show_normal=show_normals, mesh_show_back_face=show_back)
+            plotter = pv.Plotter()
+            plotter.add_mesh(pcd, color='maroon', point_size=10.0, render_points_as_spheres=True)
+            plotter.show_grid()
+            plotter.show()
+            # o3d.visualization.draw_geometries([pcd], point_show_normal=show_normals, mesh_show_back_face=show_back)
 
         return pcd
 
@@ -63,7 +78,6 @@ class Lithophane:
         vertices = []
         for index, value in np.ndenumerate(heights):
             vertices.append((index[0], index[1], (value + props.minHeight) * props.numSamples))
-            if value != 0.0: vertices.append((index[0], index[1], props.minHeight * props.numSamples))
 
         return np.array(vertices)
 
@@ -71,7 +85,6 @@ class Lithophane:
         img = Image.open(filename)
 
         scale = props.maxSize * props.numSamples / max(img.width, img.height)
-        # if scale < 1.0: scale = 1.0
         gray = ImageOps.scale(ImageOps.grayscale(img), scale, True)
         gray = ImageOps.invert(gray)
         data = gray.getdata()
@@ -83,8 +96,8 @@ class Lithophane:
 
     @staticmethod
     def scale_to_final_size(pcd, props):
-        bound = pcd.get_max_bound()
-        scale = props.maxSize / max(bound[0], bound[1])
+        bound = pcd.bounds
+        scale = props.maxSize / max(bound[1], bound[3])
         matrix = np.array([
             [scale, 0,  0,  0],
             [0,  scale, 0,  0],

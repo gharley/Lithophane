@@ -84,7 +84,8 @@ class Main(QMainWindow):
         pcd = litho.create_point_cloud_from_vertices(self._vertices, color=[0.0, 1.0, 1.0], display=True, show_normals=False)
         pcd = litho.scale_to_final_size(pcd, self.props)
         bpa_mesh = litho.create_mesh_from_point_cloud(pcd, self.props)
-        o3d.io.write_triangle_mesh("C:/Cloud/Google/Fab/Artwork/nsfw.stl", bpa_mesh)
+        bpa_mesh.save("C:/Cloud/Google/Fab/Artwork/nsfw.stl")
+        # o3d.io.write_triangle_mesh("C:/Cloud/Google/Fab/Artwork/nsfw.stl", bpa_mesh)
 
 
 if __name__ == "__main__":
