@@ -9,7 +9,7 @@ class Lithophane:
     def __init__(self):
         pass
 
-    def create_mesh_from_point_cloud(self, pcd, base_height, max_height):
+    def create_mesh_from_point_cloud(self, pcd, props):
         voxel_size = 1000000 / np.asarray(pcd.points).size
         # pcd = pcd.random_down_sample(voxel_size)
         # pcd = pcd.uniform_down_sample(math.ceil(1/voxel_size))
@@ -19,8 +19,8 @@ class Lithophane:
 
         distance = 0.1
         bound = pcd.get_max_bound()
-        if 0 < base_height:
-            base_mesh = o3d.geometry.TriangleMesh.create_box(bound[0], bound[1], base_height)
+        if 0 < props.baseHeight or 0 < props.minHeight:
+            base_mesh = o3d.geometry.TriangleMesh.create_box(bound[0], bound[1], props.baseHeight + props.minHeight)
             base_mesh.paint_uniform_color([1.0, 1.0, 0])
             base_mesh = base_mesh.compute_vertex_normals()
             base_mesh = base_mesh.compute_triangle_normals()
@@ -33,7 +33,7 @@ class Lithophane:
         mesh = mesh.compute_triangle_normals()
         mesh = mesh.remove_non_manifold_edges()
         mesh.merge_close_vertices(distance)
-        mesh = mesh.crop(o3d.geometry.AxisAlignedBoundingBox([0.0, 0.0, 0.0], [bound[0], bound[1], max_height + base_height]))
+        mesh = mesh.crop(o3d.geometry.AxisAlignedBoundingBox([0.0, 0.0, 0.0], [bound[0], bound[1], props.maxHeight + props.baseHeight + props.minHeight]))
         # mesh.filter_smooth_taubin()
         print(f'mesh.is_edge_manifold = {mesh.is_edge_manifold()}')
         print(f'mesh.is_vertex_manifold = {mesh.is_vertex_manifold()}')
@@ -59,35 +59,36 @@ class Lithophane:
         return pcd
 
     @staticmethod
-    def _get_vertices(heights, base_height):
+    def _get_vertices(heights, props):
         vertices = []
         for index, value in np.ndenumerate(heights):
-            vertices.append((index[0], index[1], value))
-            # if value != 0.0: vertices.append((index[0], index[1], 0.0))
+            vertices.append((index[0], index[1], (value + props.minHeight) * props.numSamples))
+            if value != 0.0: vertices.append((index[0], index[1], props.minHeight * props.numSamples))
 
         return np.array(vertices)
 
-    def prepare_image(self, filename, base_height, max_height, max_size, samples):
+    def prepare_image(self, filename, props):
         img = Image.open(filename)
 
-        scale = max_size / min(img.width, img.height) * samples
+        scale = props.maxSize * props.numSamples / max(img.width, img.height)
+        # if scale < 1.0: scale = 1.0
         gray = ImageOps.scale(ImageOps.grayscale(img), scale, True)
         gray = ImageOps.invert(gray)
         data = gray.getdata()
         actual_max_height = np.max(data)
         heights = np.zeros([gray.height + 2, gray.width + 2])
-        heights[1:-1, 1:-1] = gray / actual_max_height * max_height
+        heights[1:-1, 1:-1] = gray / actual_max_height * props.maxHeight
 
-        return self._get_vertices(heights, base_height)
+        return self._get_vertices(heights, props)
 
     @staticmethod
-    def scale_to_final_size(pcd, max_size):
+    def scale_to_final_size(pcd, props):
         bound = pcd.get_max_bound()
-        scale = max_size / max(bound[0], bound[1])
+        scale = props.maxSize / max(bound[0], bound[1])
         matrix = np.array([
             [scale, 0,  0,  0],
             [0,  scale, 0,  0],
-            [0,  0,  1.0, 0],
+            [0,  0,  scale, 0],
             [0,  0,  0,  1]])
 
         return pcd.transform(matrix)
