@@ -93,12 +93,13 @@ class Main(QMainWindow):
         mesh = litho.scale_to_final_size(mesh, self.props)
 
         geo = self.plotFrame.geometry()
-        self._mesh_plotter.window_size = [geo.width(), geo.height()]
         scale = max(geo.width(), geo.height()) / max(mesh.bounds[1], mesh.bounds[3])
 
         self._mesh_plotter.add_mesh(mesh.copy().scale(scale, inplace=True), color=[1.0, 1.0, 0.0], point_size=10.0, render_points_as_spheres=True)
         self._mesh_plotter.show_grid()
         self._mesh_plotter.show()
+        self._mesh_plotter.window_size = [geo.width(), geo.height()]
+        self._mesh_plotter.update()
 
         self._mesh = mesh
 
