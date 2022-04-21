@@ -13,7 +13,7 @@ class Lithophane:
     def create_mesh_from_point_cloud(pcd, base):
         mesh = pcd.delaunay_2d()
         if base is not None: mesh += base
-        mesh.plot(show_edges=True, show_grid=True)
+        # mesh.plot(show_edges=True, show_grid=True)
 
         return mesh
 
@@ -23,7 +23,7 @@ class Lithophane:
 
         if 0.0 < props.minHeight or 0.0 < props.baseHeight:
             bounds = pcd.bounds
-            x_max = bounds[1];
+            x_max = bounds[1]
             y_max = bounds[3]
             height = (props.minHeight + props.baseHeight) * props.numSamples
             base = pv.Cube(center=(x_max / 2, y_max / 2, -height / 2), x_length=x_max, y_length=y_max, z_length=height)
