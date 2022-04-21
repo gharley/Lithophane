@@ -9,21 +9,27 @@ class Lithophane:
     def __init__(self):
         pass
 
-    def create_mesh_from_point_cloud(self, pcd, props):
+    @staticmethod
+    def create_mesh_from_point_cloud(pcd, base):
         mesh = pcd.delaunay_2d()
+        if base is not None: mesh += base
         mesh.plot(show_edges=True, show_grid=True)
 
         return mesh
 
     @staticmethod
-    def create_point_cloud_from_vertices(vertices, props, color=[0.0, 0.0, 0.0], display=False):
+    def create_point_cloud_from_vertices(vertices, props, display=False):
         pcd = pv.PolyData(vertices)
 
         if 0.0 < props.minHeight or 0.0 < props.baseHeight:
             bounds = pcd.bounds
+            x_max = bounds[1];
+            y_max = bounds[3]
             height = (props.minHeight + props.baseHeight) * props.numSamples
-            base = pv.Cube(center=(bounds[0] / 2, bounds[1] / 2, height / 2), x_length=bounds[0], y_length=bounds[1], z_length=height)
-            pcd = pcd.merge(base)
+            base = pv.Cube(center=(x_max / 2, y_max / 2, -height / 2), x_length=x_max, y_length=y_max, z_length=height)
+            base = base.triangulate()
+        else:
+            base = None
 
         if display:
             plotter = pv.Plotter()
@@ -31,7 +37,7 @@ class Lithophane:
             plotter.show_grid()
             plotter.show()
 
-        return pcd
+        return pcd, base
 
     @staticmethod
     def _get_vertices(heights, props):
@@ -55,13 +61,13 @@ class Lithophane:
         return self._get_vertices(heights, props)
 
     @staticmethod
-    def scale_to_final_size(pcd, props):
-        bound = pcd.bounds
+    def scale_to_final_size(mesh, props):
+        bound = mesh.bounds
         scale = props.maxSize / max(bound[1], bound[3])
         matrix = np.array([
-            [scale, 0,  0,  0],
-            [0,  scale, 0,  0],
-            [0,  0,  scale, 0],
-            [0,  0,  0,  1]])
+            [scale, 0, 0, 0],
+            [0, scale, 0, 0],
+            [0, 0, scale, 0],
+            [0, 0, 0, 1]])
 
-        return pcd.transform(matrix)
+        return mesh.transform(matrix)

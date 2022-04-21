@@ -15,11 +15,8 @@ class Main(QMainWindow):
         super().__init__()
 
         self._img = None
-        self._img_colors = None
         self._heights = None
         self._vertices = None
-        self._faces = None
-        self._model = None
 
         self._load_config()
         self._load_ui()
@@ -77,9 +74,9 @@ class Main(QMainWindow):
         litho = lp.Lithophane()
 
         self._vertices = litho.prepare_image(filename, self.props)
-        pcd = litho.create_point_cloud_from_vertices(self._vertices, self.props, color=[0.0, 1.0, 1.0])
-        pcd = litho.scale_to_final_size(pcd, self.props)
-        mesh = litho.create_mesh_from_point_cloud(pcd, self.props)
+        pcd, base = litho.create_point_cloud_from_vertices(self._vertices, self.props)
+        mesh = litho.create_mesh_from_point_cloud(pcd, base)
+        mesh = litho.scale_to_final_size(mesh, self.props)
         mesh.save("C:/Cloud/Google/Fab/Artwork/nsfw.stl")
 
 
