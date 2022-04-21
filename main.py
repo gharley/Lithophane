@@ -2,10 +2,6 @@ import os
 import sys
 import json
 
-import open3d as o3d
-
-from matplotlib.backends.qt_compat import QtWidgets
-
 from PyQt5 import uic
 from PyQt5.QtCore import QFile
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QLabel, QComboBox, QLineEdit, QCheckBox, QFileDialog
@@ -81,11 +77,10 @@ class Main(QMainWindow):
         litho = lp.Lithophane()
 
         self._vertices = litho.prepare_image(filename, self.props)
-        pcd = litho.create_point_cloud_from_vertices(self._vertices, color=[0.0, 1.0, 1.0], display=True, show_normals=False)
+        pcd = litho.create_point_cloud_from_vertices(self._vertices, self.props, color=[0.0, 1.0, 1.0])
         pcd = litho.scale_to_final_size(pcd, self.props)
-        bpa_mesh = litho.create_mesh_from_point_cloud(pcd, self.props)
-        bpa_mesh.save("C:/Cloud/Google/Fab/Artwork/nsfw.stl")
-        # o3d.io.write_triangle_mesh("C:/Cloud/Google/Fab/Artwork/nsfw.stl", bpa_mesh)
+        mesh = litho.create_mesh_from_point_cloud(pcd, self.props)
+        mesh.save("C:/Cloud/Google/Fab/Artwork/nsfw.stl")
 
 
 if __name__ == "__main__":
