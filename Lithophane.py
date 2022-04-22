@@ -2,7 +2,7 @@ import math
 
 import numpy as np
 import pyvista as pv
-from PIL import Image, ImageOps
+from PIL import ImageOps
 
 
 class Lithophane:
@@ -48,11 +48,12 @@ class Lithophane:
         return np.array(vertices)
 
     def prepare_image(self, filename, props):
-        img = Image.open(filename)
+        img = props.img
 
         scale = props.maxSize * props.numSamples / max(img.width, img.height)
-        gray = ImageOps.scale(ImageOps.grayscale(img), scale, True)
-        gray = ImageOps.invert(gray)
+        gray = ImageOps.scale(ImageOps.grayscale(img), scale, True)  # .rotate(-90)  # Not sure why rotate is necessary
+        if props.chkInvert: gray = ImageOps.invert(gray)
+        if props.chkMirror: gray = ImageOps.mirror(gray)
         data = gray.getdata()
         actual_max_height = np.max(data)
         heights = np.zeros([gray.height + 2, gray.width + 2])

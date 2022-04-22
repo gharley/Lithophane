@@ -5,6 +5,7 @@ import json
 from PyQt5 import uic
 from PyQt5.QtCore import QFile
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QLabel, QComboBox, QLineEdit, QCheckBox, QFileDialog
+from PIL import Image
 import pyvistaqt as pvqt
 
 from common import DotDict
@@ -19,6 +20,8 @@ class Main(QMainWindow):
         self._heights = None
         self._vertices = None
         self._mesh = None
+        self._img_id = None
+        self._mesh_id = None
 
         self.config = DotDict()
         self.props = DotDict()
@@ -26,8 +29,8 @@ class Main(QMainWindow):
         self._load_config()
         self._load_ui()
 
-        self._mesh_plotter = pvqt.QtInteractor(self.plotFrame)
-        geo = self.plotFrame.geometry()
+        self._mesh_plotter = pvqt.QtInteractor(self.plotWidget)
+        geo = self.imgLayout.geometry()
         self._mesh_plotter.window_size = [geo.width(), geo.height()]
 
     def closeEvent(self, event) -> None:
@@ -39,7 +42,9 @@ class Main(QMainWindow):
         self.actionSave.triggered.connect(self._save_model)
 
     def _init_properties(self):
-        self.props = DotDict()
+        for obj in self.findChildren(QCheckBox):
+            self.props[obj.objectName()] = obj.isChecked()
+
         for obj in self.findChildren(QLabel):
             buddy = obj.buddy()
             if buddy is not None:
@@ -58,6 +63,9 @@ class Main(QMainWindow):
         dir_name = dialog.getOpenFileName(None, 'Load Image', self.config.image_dir, 'Images (*.png;*.jpg)')
         if dir_name[0]:
             self.config.image_dir = dir_name[0]
+            self.props.img = Image.open(dir_name[0])
+            # self.imgView
+
             self.process_image()
 
     def _load_ui(self):
@@ -80,8 +88,14 @@ class Main(QMainWindow):
         #
         # self.setWindowIcon(QIcon(':images/end_all.svg'))
 
+    mesh_id = None
+
     def process_image(self):
         self._init_properties()
+        if self._mesh_id is not None:
+            self._mesh_plotter.remove_actor(self._mesh_id)
+            # self._mesh_plotter.update()
+
         filename = self.config.image_dir
         # filename = "C:/Users/gharley/Pictures/Abby.jpg"
         # filename = "C:/Cloud/Google/Fab/CNC/3D/bee3D.jpg"
@@ -92,10 +106,10 @@ class Main(QMainWindow):
         mesh = litho.create_mesh_from_point_cloud(pcd, base)
         mesh = litho.scale_to_final_size(mesh, self.props)
 
-        geo = self.plotFrame.geometry()
+        geo = self.plotWidget.geometry()
         scale = max(geo.width(), geo.height()) / max(mesh.bounds[1], mesh.bounds[3])
 
-        self._mesh_plotter.add_mesh(mesh.copy().scale(scale, inplace=True), color=[1.0, 1.0, 0.0], point_size=10.0, render_points_as_spheres=True)
+        self._mesh_id = self._mesh_plotter.add_mesh(mesh.copy().scale(scale, inplace=True), color=[1.0, 1.0, 0.0], point_size=10.0, render_points_as_spheres=True)
         self._mesh_plotter.show_grid()
         self._mesh_plotter.show()
         self._mesh_plotter.window_size = [geo.width(), geo.height()]
