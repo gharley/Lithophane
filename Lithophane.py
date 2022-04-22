@@ -47,7 +47,7 @@ class Lithophane:
 
         return np.array(vertices)
 
-    def prepare_image(self, filename, props):
+    def prepare_image(self, props):
         img = props.img
 
         scale = props.maxSize * props.numSamples / max(img.width, img.height)

@@ -4,7 +4,8 @@ import json
 
 from PyQt5 import uic
 from PyQt5.QtCore import QFile
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QLabel, QComboBox, QLineEdit, QCheckBox, QFileDialog
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QCheckBox, QFileDialog
 from PIL import Image
 import pyvistaqt as pvqt
 
@@ -30,7 +31,7 @@ class Main(QMainWindow):
         self._load_ui()
 
         self._mesh_plotter = pvqt.QtInteractor(self.plotWidget)
-        geo = self.imgLayout.geometry()
+        geo = self.plotWidget.geometry()
         self._mesh_plotter.window_size = [geo.width(), geo.height()]
 
     def closeEvent(self, event) -> None:
@@ -40,6 +41,8 @@ class Main(QMainWindow):
     def _init_connections(self):
         self.actionOpen.triggered.connect(self._load_image)
         self.actionSave.triggered.connect(self._save_model)
+        self.actionGenerate.triggered.connect(self.process_image)
+        self.actionExit.triggered.connect(self.close)
 
     def _init_properties(self):
         for obj in self.findChildren(QCheckBox):
@@ -64,9 +67,7 @@ class Main(QMainWindow):
         if dir_name[0]:
             self.config.image_dir = dir_name[0]
             self.props.img = Image.open(dir_name[0])
-            # self.imgView
-
-            self.process_image()
+            self.lblImage.setPixmap(QPixmap(dir_name[0]))
 
     def _load_ui(self):
         ui_file = QFile('mainwindow.ui')
@@ -96,12 +97,9 @@ class Main(QMainWindow):
             self._mesh_plotter.remove_actor(self._mesh_id)
             # self._mesh_plotter.update()
 
-        filename = self.config.image_dir
-        # filename = "C:/Users/gharley/Pictures/Abby.jpg"
-        # filename = "C:/Cloud/Google/Fab/CNC/3D/bee3D.jpg"
         litho = lp.Lithophane()
 
-        self._vertices = litho.prepare_image(filename, self.props)
+        self._vertices = litho.prepare_image(self.props)
         pcd, base = litho.create_point_cloud_from_vertices(self._vertices, self.props)
         mesh = litho.create_mesh_from_point_cloud(pcd, base)
         mesh = litho.scale_to_final_size(mesh, self.props)
@@ -110,7 +108,7 @@ class Main(QMainWindow):
         scale = max(geo.width(), geo.height()) / max(mesh.bounds[1], mesh.bounds[3])
 
         self._mesh_id = self._mesh_plotter.add_mesh(mesh.copy().scale(scale, inplace=True), color=[1.0, 1.0, 0.0], point_size=10.0, render_points_as_spheres=True)
-        self._mesh_plotter.show_grid()
+        # self._mesh_plotter.show_grid()
         self._mesh_plotter.show()
         self._mesh_plotter.window_size = [geo.width(), geo.height()]
         self._mesh_plotter.update()
