@@ -23,6 +23,7 @@ class Main(QMainWindow):
         self._mesh = None
         self._img_id = None
         self._mesh_id = None
+        self._mesh_plotter = None
 
         self.config = DotDict()
         self.props = DotDict()
@@ -37,6 +38,12 @@ class Main(QMainWindow):
     def closeEvent(self, event) -> None:
         with open('config.json', 'w') as out_file:
             json.dump(self.config, out_file)
+
+    def resizeEvent(self, event) -> None:
+        if self._mesh_plotter is not None:
+            geo = self.plotWidget.geometry()
+            self._mesh_plotter.window_size = [geo.width(), geo.height()]
+            self._mesh_plotter.update()
 
     def _init_connections(self):
         self.actionOpen.triggered.connect(self._load_image)
@@ -107,7 +114,7 @@ class Main(QMainWindow):
         geo = self.plotWidget.geometry()
         scale = max(geo.width(), geo.height()) / max(mesh.bounds[1], mesh.bounds[3])
 
-        self._mesh_id = self._mesh_plotter.add_mesh(mesh.copy().scale(scale, inplace=True), color=[1.0, 1.0, 0.0], point_size=10.0, render_points_as_spheres=True)
+        self._mesh_id = self._mesh_plotter.add_mesh(mesh.copy().scale(scale, inplace=True), pbr=True, color=[1.0, 1.0, 0.0], point_size=10.0, render_points_as_spheres=True)
         # self._mesh_plotter.show_grid()
         self._mesh_plotter.show()
         self._mesh_plotter.window_size = [geo.width(), geo.height()]
