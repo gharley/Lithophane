@@ -21,7 +21,7 @@
     </sizepolicy>
    </property>
    <layout class="QGridLayout" name="gridLayout_3">
-    <item row="0" column="0">
+    <item row="2" column="0">
      <layout class="QGridLayout" name="gridLayout_2">
       <property name="leftMargin">
        <number>20</number>
@@ -84,7 +84,7 @@
              </size>
             </property>
             <property name="text">
-             <string>.127</string>
+             <string>0</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -177,7 +177,7 @@
              </size>
             </property>
             <property name="text">
-             <string>2</string>
+             <string>5</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -273,6 +273,13 @@
        </layout>
       </item>
      </layout>
+    </item>
+    <item row="1" column="0">
+     <widget class="QPushButton" name="btnGenerate">
+      <property name="text">
+       <string>Generate Lithophane Model</string>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>

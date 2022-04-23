@@ -9,13 +9,13 @@ class Lithophane:
 
     @staticmethod
     def create_mesh_from_point_cloud(pcd, base):
-        mesh = pcd.delaunay_2d()
+        mesh = pcd.delaunay_2d(progress_bar=True)
         if base is not None: mesh += base
 
         return mesh
 
     @staticmethod
-    def create_point_cloud_from_vertices(vertices, props, display=False):
+    def create_point_cloud_from_vertices(vertices, props):
         pcd = pv.PolyData(vertices)
 
         bounds = pcd.bounds
@@ -24,12 +24,6 @@ class Lithophane:
         height = (props.minHeight + props.baseHeight) * props.numSamples
         base = pv.Cube(center=(x_max / 2, y_max / 2, -height / 2), x_length=x_max, y_length=y_max, z_length=height)
         base = base.triangulate()
-
-        if display:
-            plotter = pv.Plotter()
-            plotter.add_mesh(pcd, color='maroon', point_size=10.0, render_points_as_spheres=True)
-            plotter.show_grid()
-            plotter.show()
 
         return pcd, base
 

@@ -50,6 +50,7 @@ class Main(QMainWindow):
         self.actionOpen.triggered.connect(self._load_image)
         self.actionSave.triggered.connect(self._save_model)
         self.actionGenerate.triggered.connect(self.process_image)
+        self.btnGenerate.clicked.connect(self.process_image)
         self.actionExit.triggered.connect(self.close)
 
     def _init_properties(self):
