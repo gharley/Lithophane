@@ -36,23 +36,10 @@
        <number>20</number>
       </property>
       <item row="0" column="2">
-       <layout class="QHBoxLayout" name="imgLayout" stretch="0,0">
+       <layout class="QHBoxLayout" name="imgLayout" stretch="0">
         <property name="sizeConstraint">
          <enum>QLayout::SetNoConstraint</enum>
         </property>
-        <item>
-         <widget class="QLabel" name="lblImage">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
         <item>
          <widget class="QWidget" name="plotWidget" native="true">
           <property name="sizePolicy">
@@ -62,10 +49,7 @@
            </sizepolicy>
           </property>
           <property name="styleSheet">
-           <string notr="true">border: green;
-background-color: cyan;
-
-</string>
+           <string notr="true"/>
           </property>
          </widget>
         </item>
@@ -75,8 +59,18 @@ background-color: cyan;
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
          <layout class="QGridLayout" name="gridLayout">
-          <item row="2" column="1">
-           <widget class="QLineEdit" name="numSamples">
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Pixels/Vertex</string>
+            </property>
+            <property name="buddy">
+             <cstring>numSamples</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QLineEdit" name="minHeight">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -90,29 +84,20 @@ background-color: cyan;
              </size>
             </property>
             <property name="text">
-             <string>2</string>
+             <string>.127</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
             </property>
            </widget>
           </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="label">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_2">
             <property name="text">
-             <string>Max Size (mm)</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             <string>Max Z Height (mm)</string>
             </property>
             <property name="buddy">
-             <cstring>maxSize</cstring>
+             <cstring>maxHeight</cstring>
             </property>
            </widget>
           </item>
@@ -138,6 +123,23 @@ background-color: cyan;
             </property>
            </widget>
           </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>Base Height</string>
+            </property>
+            <property name="buddy">
+             <cstring>baseHeight</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QCheckBox" name="chkInvert">
+            <property name="text">
+             <string>Invert Image</string>
+            </property>
+           </widget>
+          </item>
           <item row="0" column="1">
            <widget class="QLineEdit" name="maxSize">
             <property name="sizePolicy">
@@ -160,18 +162,8 @@ background-color: cyan;
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_2">
-            <property name="text">
-             <string>Max Z Height (mm)</string>
-            </property>
-            <property name="buddy">
-             <cstring>maxHeight</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1">
-           <widget class="QLineEdit" name="minHeight">
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="numSamples">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -185,7 +177,7 @@ background-color: cyan;
              </size>
             </property>
             <property name="text">
-             <string>.127</string>
+             <string>2</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -224,30 +216,22 @@ background-color: cyan;
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_4">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
             <property name="text">
-             <string>Base Height</string>
+             <string>Max Size (mm)</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
             </property>
             <property name="buddy">
-             <cstring>baseHeight</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>Pixels/Vertex</string>
-            </property>
-            <property name="buddy">
-             <cstring>numSamples</cstring>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0">
-           <widget class="QCheckBox" name="chkInvert">
-            <property name="text">
-             <string>Invert Image</string>
+             <cstring>maxSize</cstring>
             </property>
            </widget>
           </item>
@@ -255,6 +239,19 @@ background-color: cyan;
            <widget class="QCheckBox" name="chkMirror">
             <property name="text">
              <string>Mirror Image</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0" colspan="2">
+           <widget class="QLabel" name="lblImage">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string/>
             </property>
            </widget>
           </item>
