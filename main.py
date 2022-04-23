@@ -2,6 +2,7 @@ import os
 import sys
 import json
 
+import numpy as np
 from PyQt5 import uic
 from PyQt5.QtCore import QFile
 from PyQt5.QtGui import QPixmap
@@ -113,11 +114,16 @@ class Main(QMainWindow):
 
         geo = self.plotWidget.geometry()
         scale = max(geo.width(), geo.height()) / max(mesh.bounds[1], mesh.bounds[3])
+        matrix = np.array([
+            [scale, 0, 0, 0],
+            [0, scale, 0, 0],
+            [0, 0, 1.0, 0],
+            [0, 0, 0, 1]])
 
-        self._mesh_id = self._mesh_plotter.add_mesh(mesh.copy().scale(scale, inplace=True), pbr=True, color=[1.0, 1.0, 0.0], point_size=10.0, render_points_as_spheres=True)
-        # self._mesh_plotter.show_grid()
+        self._mesh_id = self._mesh_plotter.add_mesh(mesh.copy().transform(matrix), color=[1.0, 1.0, 0.0], render_points_as_spheres=True)
         self._mesh_plotter.show()
         self._mesh_plotter.window_size = [geo.width(), geo.height()]
+        self._mesh_plotter.view_xy()
         self._mesh_plotter.update()
 
         self._mesh = mesh
