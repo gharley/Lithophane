@@ -2,6 +2,8 @@ import numpy as np
 import pyvista as pv
 from PIL import ImageOps
 
+_THRESHOLD = 1000000
+
 
 class Lithophane:
     def __init__(self):
@@ -11,6 +13,9 @@ class Lithophane:
     def create_mesh_from_point_cloud(pcd, base):
         mesh = pcd.delaunay_2d(progress_bar=True)
         if base is not None: mesh += base
+
+        if mesh.n_faces > _THRESHOLD:
+            mesh = mesh.decimate_pro(1.0 - (_THRESHOLD / mesh.n_faces))
 
         return mesh
 
