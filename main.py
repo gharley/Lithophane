@@ -1,6 +1,8 @@
 import os
 import sys
 import json
+import threading
+import time
 
 import numpy as np
 from PyQt5 import uic
@@ -125,7 +127,26 @@ class Main(QMainWindow):
     mesh_id = None
 
     def process_image(self):
+        in_progress = True
+
+        def update_progress():
+            value = 0
+            while in_progress:
+                if value > self.progressBar.maximum():
+                    value = 0
+                    self.progressBar.reset()
+
+                self.progressBar.setValue(value)
+                value += 1
+                time.sleep(0.05)
+
+            self.progressBar.setValue(0)
+
+        thread = threading.Thread(target=update_progress)
+        thread.start()
+
         self._init_properties()
+
         if self._mesh_id is not None:
             self._mesh_plotter.remove_actor(self._mesh_id)
 
@@ -153,6 +174,8 @@ class Main(QMainWindow):
         self._mesh_plotter.update()
 
         self._mesh = mesh
+
+        in_progress = False
 
     def _save_model(self):
         if self._mesh is not None:
