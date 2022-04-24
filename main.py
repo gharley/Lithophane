@@ -6,7 +6,7 @@ import numpy as np
 from PyQt5 import uic
 from PyQt5.QtCore import QFile
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QCheckBox, QFileDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QLineEdit, QCheckBox, QFileDialog, QWidget
 from PIL import Image
 import pyvistaqt as pvqt
 
@@ -27,6 +27,8 @@ class Main(QMainWindow):
         self._mesh_plotter = None
 
         self.config = DotDict()
+        self.config.spec_dir = ''
+
         self.props = DotDict()
 
         self._load_config()
@@ -49,6 +51,8 @@ class Main(QMainWindow):
     def _init_connections(self):
         self.actionOpen.triggered.connect(self._load_image)
         self.actionSave.triggered.connect(self._save_model)
+        self.actionLoad_Settings.triggered.connect(self._load_specs)
+        self.actionSave_Settings.triggered.connect(self._save_specs)
         self.actionGenerate.triggered.connect(self.process_image)
         self.btnGenerate.clicked.connect(self.process_image)
         self.actionExit.triggered.connect(self.close)
@@ -78,6 +82,25 @@ class Main(QMainWindow):
             self.props.img = Image.open(dir_name[0])
             self.lblImage.setPixmap(QPixmap(dir_name[0]))
 
+    def _load_specs(self):
+        dialog = QFileDialog()
+
+        dir_name = dialog.getOpenFileName(None, 'Load Specifications', self.config.spec_dir, 'Specifications (*.spec)')
+        if dir_name[0]:
+            self.config.spec_dir = dir_name[0]
+
+            with open(dir_name[0], 'r') as in_file:
+                specs = DotDict(json.load(in_file))
+
+            for key, value in specs.items():
+                widget = self.findChild(QWidget, key)
+                if widget is None: continue
+
+                if key.startswith('chk') or key.startswith('btn'):
+                    widget.setChecked(value)
+                else:
+                    widget.setText(value)
+
     def _load_ui(self):
         ui_file = QFile('mainwindow.ui')
         # ui_file = QFile(':resources/mainwindow.ui')
@@ -86,6 +109,7 @@ class Main(QMainWindow):
         ui_file.close()
 
         self._init_connections()
+        self.resize(1920, 1080)
 
         self.show()
 
@@ -104,7 +128,6 @@ class Main(QMainWindow):
         self._init_properties()
         if self._mesh_id is not None:
             self._mesh_plotter.remove_actor(self._mesh_id)
-            # self._mesh_plotter.update()
 
         litho = lp.Lithophane()
 
@@ -118,10 +141,12 @@ class Main(QMainWindow):
         matrix = np.array([
             [scale, 0, 0, 0],
             [0, scale, 0, 0],
-            [0, 0, 1.0, 0],
+            [0, 0, scale, 0],
             [0, 0, 0, 1]])
 
-        self._mesh_id = self._mesh_plotter.add_mesh(mesh.copy().transform(matrix), color=[1.0, 1.0, 0.0], render_points_as_spheres=True)
+        self._mesh_id = self._mesh_plotter.add_mesh(mesh.copy().transform(matrix), color=[1.0, 1.0, 0.0], render_points_as_spheres=True, pbr=True, metallic=1.0)
+        # self._mesh_plotter.add_camera_orientation_widget()
+        self._mesh_plotter.show_axes()
         self._mesh_plotter.show()
         self._mesh_plotter.window_size = [geo.width(), geo.height()]
         self._mesh_plotter.view_xy()
@@ -137,6 +162,23 @@ class Main(QMainWindow):
             dir_name = dialog.getSaveFileName(None, 'Save Model', filename, 'Model Files (*.stl)')
             if dir_name[0]:
                 self._mesh.save(dir_name[0])
+
+    def _save_specs(self):
+        dialog = QFileDialog()
+
+        dir_name = dialog.getSaveFileName(None, 'Save Specifications', self.config.spec_dir, 'Specifications (*.spec)')
+        if dir_name[0]:
+            self.config.spec_dir = dir_name[0]
+
+            specs = DotDict()
+            for child in self.findChildren(QLineEdit):
+                specs[child.objectName()] = child.text()
+
+            for child in self.findChildren(QCheckBox):
+                specs[child.objectName()] = child.isChecked()
+
+            with open(dir_name[0], 'w') as out_file:
+                json.dump(specs, out_file)
 
 
 if __name__ == "__main__":
