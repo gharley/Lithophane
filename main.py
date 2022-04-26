@@ -82,7 +82,8 @@ class Main(QMainWindow):
         if dir_name[0]:
             self.config.image_dir = dir_name[0]
             self.props.img = Image.open(dir_name[0])
-            self.lblImage.setPixmap(QPixmap(dir_name[0]))
+            scale = 300.0 / self.props.img.width
+            self.lblImage.setPixmap(QPixmap(dir_name[0]).scaled(self.props.img.width * scale, self.props.img.height * scale))
 
     def _load_specs(self):
         dialog = QFileDialog()
@@ -165,7 +166,7 @@ class Main(QMainWindow):
             [0, 0, scale, 0],
             [0, 0, 0, 1]])
 
-        self._mesh_id = self._mesh_plotter.add_mesh(mesh.copy().transform(matrix), color=[1.0, 1.0, 0.0], render_points_as_spheres=True, pbr=True, metallic=1.0)
+        self._mesh_id = self._mesh_plotter.add_mesh(mesh.copy().transform(matrix), color=[1.0, 1.0, 0.0], render_points_as_spheres=True, pbr=False, metallic=1.0)
         # self._mesh_plotter.add_camera_orientation_widget()
         self._mesh_plotter.show_axes()
         self._mesh_plotter.show()

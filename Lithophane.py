@@ -11,7 +11,7 @@ class Lithophane:
 
     @staticmethod
     def create_mesh_from_point_cloud(pcd, base):
-        mesh = pcd.delaunay_2d(progress_bar=True)
+        mesh = pcd.delaunay_2d(progress_bar=False)
         if base is not None: mesh += base
 
         if mesh.n_faces > _THRESHOLD:
