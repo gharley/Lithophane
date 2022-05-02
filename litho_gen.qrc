@@ -2,5 +2,6 @@
 <RCC version="1.0">
   <qresource prefix="resources">
     <file>litho_gen.ui</file>
+    <file>litho_gen.qss</file>
   </qresource>
 </RCC>

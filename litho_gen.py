@@ -14,7 +14,6 @@ import pyvistaqt as pvqt
 
 from common import DotDict
 import Lithophane as lp
-import litho_gen_rc
 
 
 class Main(QMainWindow):
@@ -106,8 +105,9 @@ class Main(QMainWindow):
                     widget.setText(value)
 
     def _load_ui(self):
-        # ui_file = QFile('litho_gen.ui')
-        ui_file = QFile(':resources/litho_gen.ui')
+        # import litho_gen_rc
+        ui_file = QFile('litho_gen.ui')
+        # ui_file = QFile(':resources/litho_gen.ui')
         ui_file.open(QFile.ReadOnly)
         self._main = uic.loadUi(ui_file, self)
         ui_file.close()
@@ -117,12 +117,13 @@ class Main(QMainWindow):
 
         self.show()
 
-        # style_sheet = QFile(':resources/form.qss')
-        # if style_sheet.exists():
-        #     style_sheet.open(QFile.ReadOnly)
-        #     style = str(style_sheet.readAll(), 'utf-8')
-        #     self.setStyleSheet(style)
-        #     style_sheet.close()
+        style_sheet = QFile('litho_gen.qss')
+        # style_sheet = QFile(':resources/litho_gen.qss')
+        if style_sheet.exists():
+            style_sheet.open(QFile.ReadOnly)
+            style = str(style_sheet.readAll(), 'utf-8')
+            self.setStyleSheet(style)
+            style_sheet.close()
         #
         # self.setWindowIcon(QIcon(':images/end_all.svg'))
 
@@ -167,7 +168,8 @@ class Main(QMainWindow):
             [0, 0, scale, 0],
             [0, 0, 0, 1]])
 
-        self._mesh_id = self._mesh_plotter.add_mesh(mesh.copy().transform(matrix), color=[1.0, 1.0, 0.0], render_points_as_spheres=True, pbr=False, metallic=1.0)
+        self._mesh_id = self._mesh_plotter.add_mesh(mesh.copy().transform(matrix), color=[1.0, 1.0, 0.0], render_points_as_spheres=True, pbr=False,
+                                                    metallic=1.0)
         # self._mesh_plotter.add_camera_orientation_widget()
         self._mesh_plotter.show_axes()
         self._mesh_plotter.show()
