@@ -6,7 +6,7 @@ import time
 
 import numpy as np
 from PyQt5 import uic
-from PyQt5.QtCore import QFile
+from PyQt5.QtCore import QFile, QDir
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QLineEdit, QCheckBox, QFileDialog, QWidget
 from PIL import Image
@@ -14,6 +14,7 @@ import pyvistaqt as pvqt
 
 from common import DotDict
 import Lithophane as lp
+import litho_gen_rc
 
 
 class Main(QMainWindow):
@@ -105,8 +106,8 @@ class Main(QMainWindow):
                     widget.setText(value)
 
     def _load_ui(self):
-        ui_file = QFile('mainwindow.ui')
-        # ui_file = QFile(':resources/mainwindow.ui')
+        # ui_file = QFile('litho_gen.ui')
+        ui_file = QFile(':resources/litho_gen.ui')
         ui_file.open(QFile.ReadOnly)
         self._main = uic.loadUi(ui_file, self)
         ui_file.close()
@@ -139,7 +140,7 @@ class Main(QMainWindow):
 
                 self.progressBar.setValue(value)
                 value += 1
-                time.sleep(0.05)
+                time.sleep(0.5)
 
             self.progressBar.setValue(0)
 
