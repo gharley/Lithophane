@@ -4,6 +4,8 @@ import json
 import threading
 import time
 
+import litho_gen_rc
+
 import numpy as np
 from PyQt5 import uic
 from PyQt5.QtCore import QFile, QDir
@@ -107,7 +109,7 @@ class Main(QMainWindow):
     def _load_ui(self):
         # import litho_gen_rc
         ui_file = QFile('litho_gen.ui')
-        # ui_file = QFile(':resources/litho_gen.ui')
+        # ui_file = QFile(':ui/litho_gen.ui')
         ui_file.open(QFile.ReadOnly)
         self._main = uic.loadUi(ui_file, self)
         ui_file.close()
@@ -117,8 +119,8 @@ class Main(QMainWindow):
 
         self.show()
 
-        style_sheet = QFile('litho_gen.qss')
-        # style_sheet = QFile(':resources/litho_gen.qss')
+        # style_sheet = QFile('litho_gen.qss')
+        style_sheet = QFile(':ui/litho_gen.qss')
         if style_sheet.exists():
             style_sheet.open(QFile.ReadOnly)
             style = str(style_sheet.readAll(), 'utf-8')

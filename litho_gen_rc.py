@@ -6,786 +6,128 @@
 from PySide2 import QtCore
 
 qt_resource_data = b"\
-\x00\x00/\xdf\
-<\
-?xml version=\x221.\
-0\x22 encoding=\x22UTF\
--8\x22?>\x0d\x0a<ui versi\
-on=\x224.0\x22>\x0d\x0a <aut\
-hor>Greg Harley<\
-/author>\x0d\x0a <clas\
-s>MainWindow</cl\
-ass>\x0d\x0a <widget c\
-lass=\x22QMainWindo\
-w\x22 name=\x22MainWin\
-dow\x22>\x0d\x0a  <proper\
-ty name=\x22geometr\
-y\x22>\x0d\x0a   <rect>\x0d\x0a\
-    <x>0</x>\x0d\x0a  \
-  <y>0</y>\x0d\x0a    \
-<width>1024</wid\
-th>\x0d\x0a    <height\
->768</height>\x0d\x0a \
-  </rect>\x0d\x0a  </p\
-roperty>\x0d\x0a  <pro\
-perty name=\x22wind\
-owTitle\x22>\x0d\x0a   <s\
-tring>Lithophane\
- Generator</stri\
-ng>\x0d\x0a  </propert\
-y>\x0d\x0a  <widget cl\
-ass=\x22QWidget\x22 na\
-me=\x22centralwidge\
-t\x22>\x0d\x0a   <propert\
-y name=\x22sizePoli\
-cy\x22>\x0d\x0a    <sizep\
-olicy hsizetype=\
-\x22Expanding\x22 vsiz\
-etype=\x22Expanding\
-\x22>\x0d\x0a     <horstr\
-etch>0</horstret\
-ch>\x0d\x0a     <verst\
-retch>0</verstre\
-tch>\x0d\x0a    </size\
-policy>\x0d\x0a   </pr\
-operty>\x0d\x0a   <lay\
-out class=\x22QGrid\
-Layout\x22 name=\x22gr\
-idLayout_3\x22>\x0d\x0a  \
-  <item row=\x222\x22 \
-column=\x220\x22>\x0d\x0a   \
-  <layout class=\
-\x22QGridLayout\x22 na\
-me=\x22gridLayout_2\
-\x22>\x0d\x0a      <prope\
-rty name=\x22leftMa\
-rgin\x22>\x0d\x0a       <\
-number>20</numbe\
-r>\x0d\x0a      </prop\
-erty>\x0d\x0a      <pr\
-operty name=\x22top\
-Margin\x22>\x0d\x0a      \
- <number>20</num\
-ber>\x0d\x0a      </pr\
-operty>\x0d\x0a      <\
-property name=\x22r\
-ightMargin\x22>\x0d\x0a  \
-     <number>20<\
-/number>\x0d\x0a      \
-</property>\x0d\x0a   \
-   <property nam\
-e=\x22bottomMargin\x22\
->\x0d\x0a       <numbe\
-r>20</number>\x0d\x0a \
-     </property>\
-\x0d\x0a      <item ro\
-w=\x222\x22 column=\x220\x22\
->\x0d\x0a       <layou\
-t class=\x22QVBoxLa\
-yout\x22 name=\x22vert\
-icalLayout\x22>\x0d\x0a  \
-      <item>\x0d\x0a  \
-       <layout c\
-lass=\x22QGridLayou\
-t\x22 name=\x22gridLay\
-out\x22>\x0d\x0a         \
- <item row=\x222\x22 c\
-olumn=\x220\x22>\x0d\x0a    \
-       <widget c\
-lass=\x22QLabel\x22 na\
-me=\x22label_3\x22>\x0d\x0a \
-           <prop\
-erty name=\x22text\x22\
->\x0d\x0a             \
-<string>Pixels/V\
-ertex</string>\x0d\x0a\
-            </pr\
-operty>\x0d\x0a       \
-     <property n\
-ame=\x22buddy\x22>\x0d\x0a  \
-           <cstr\
-ing>numSamples</\
-cstring>\x0d\x0a      \
-      </property\
->\x0d\x0a           </\
-widget>\x0d\x0a       \
-   </item>\x0d\x0a    \
-      <item row=\
-\x224\x22 column=\x221\x22>\x0d\
-\x0a           <wid\
-get class=\x22QLine\
-Edit\x22 name=\x22minH\
-eight\x22>\x0d\x0a       \
-     <property n\
-ame=\x22sizePolicy\x22\
->\x0d\x0a             \
-<sizepolicy hsiz\
-etype=\x22Fixed\x22 vs\
-izetype=\x22Fixed\x22>\
-\x0d\x0a              \
-<horstretch>0</h\
-orstretch>\x0d\x0a    \
-          <verst\
-retch>0</verstre\
-tch>\x0d\x0a          \
-   </sizepolicy>\
-\x0d\x0a            </\
-property>\x0d\x0a     \
-       <property\
- name=\x22maximumSi\
-ze\x22>\x0d\x0a          \
-   <size>\x0d\x0a     \
-         <width>\
-100</width>\x0d\x0a   \
-           <heig\
-ht>16777215</hei\
-ght>\x0d\x0a          \
-   </size>\x0d\x0a    \
-        </proper\
-ty>\x0d\x0a           \
- <property name=\
-\x22text\x22>\x0d\x0a       \
-      <string>0<\
-/string>\x0d\x0a      \
-      </property\
->\x0d\x0a            <\
-property name=\x22a\
-lignment\x22>\x0d\x0a    \
-         <set>Qt\
-::AlignRight|Qt:\
-:AlignTrailing|Q\
-t::AlignVCenter<\
-/set>\x0d\x0a         \
-   </property>\x0d\x0a\
-           </wid\
-get>\x0d\x0a          \
-</item>\x0d\x0a       \
-   <item row=\x221\x22\
- column=\x220\x22>\x0d\x0a  \
-         <widget\
- class=\x22QLabel\x22 \
-name=\x22label_2\x22>\x0d\
-\x0a            <pr\
-operty name=\x22tex\
-t\x22>\x0d\x0a           \
-  <string>Max Z \
-Height (mm)</str\
-ing>\x0d\x0a          \
-  </property>\x0d\x0a \
-           <prop\
-erty name=\x22buddy\
-\x22>\x0d\x0a            \
- <cstring>maxHei\
-ght</cstring>\x0d\x0a \
-           </pro\
-perty>\x0d\x0a        \
-   </widget>\x0d\x0a  \
-        </item>\x0d\
-\x0a          <item\
- row=\x223\x22 column=\
-\x221\x22>\x0d\x0a          \
- <widget class=\x22\
-QLineEdit\x22 name=\
-\x22baseHeight\x22>\x0d\x0a \
-           <prop\
-erty name=\x22sizeP\
-olicy\x22>\x0d\x0a       \
-      <sizepolic\
-y hsizetype=\x22Fix\
-ed\x22 vsizetype=\x22F\
-ixed\x22>\x0d\x0a        \
-      <horstretc\
-h>0</horstretch>\
-\x0d\x0a              \
-<verstretch>0</v\
-erstretch>\x0d\x0a    \
-         </sizep\
-olicy>\x0d\x0a        \
-    </property>\x0d\
-\x0a            <pr\
-operty name=\x22max\
-imumSize\x22>\x0d\x0a    \
-         <size>\x0d\
-\x0a              <\
-width>100</width\
->\x0d\x0a             \
- <height>1677721\
-5</height>\x0d\x0a    \
-         </size>\
-\x0d\x0a            </\
-property>\x0d\x0a     \
-       <property\
- name=\x22text\x22>\x0d\x0a \
-            <str\
-ing>0</string>\x0d\x0a\
-            </pr\
-operty>\x0d\x0a       \
-     <property n\
-ame=\x22alignment\x22>\
-\x0d\x0a             <\
-set>Qt::AlignRig\
-ht|Qt::AlignTrai\
-ling|Qt::AlignVC\
-enter</set>\x0d\x0a   \
-         </prope\
-rty>\x0d\x0a          \
- </widget>\x0d\x0a    \
-      </item>\x0d\x0a \
-         <item r\
-ow=\x223\x22 column=\x220\
-\x22>\x0d\x0a           <\
-widget class=\x22QL\
-abel\x22 name=\x22labe\
-l_4\x22>\x0d\x0a         \
-   <property nam\
-e=\x22text\x22>\x0d\x0a     \
-        <string>\
-Base Height</str\
-ing>\x0d\x0a          \
-  </property>\x0d\x0a \
-           <prop\
-erty name=\x22buddy\
-\x22>\x0d\x0a            \
- <cstring>baseHe\
-ight</cstring>\x0d\x0a\
-            </pr\
-operty>\x0d\x0a       \
-    </widget>\x0d\x0a \
-         </item>\
-\x0d\x0a          <ite\
-m row=\x225\x22 column\
-=\x220\x22>\x0d\x0a         \
-  <widget class=\
-\x22QCheckBox\x22 name\
-=\x22chkInvert\x22>\x0d\x0a \
-           <prop\
-erty name=\x22text\x22\
->\x0d\x0a             \
-<string>Invert I\
-mage</string>\x0d\x0a \
-           </pro\
-perty>\x0d\x0a        \
-   </widget>\x0d\x0a  \
-        </item>\x0d\
-\x0a          <item\
- row=\x220\x22 column=\
-\x221\x22>\x0d\x0a          \
- <widget class=\x22\
-QLineEdit\x22 name=\
-\x22maxSize\x22>\x0d\x0a    \
-        <propert\
-y name=\x22sizePoli\
-cy\x22>\x0d\x0a          \
-   <sizepolicy h\
-sizetype=\x22Fixed\x22\
- vsizetype=\x22Fixe\
-d\x22>\x0d\x0a           \
-   <horstretch>0\
-</horstretch>\x0d\x0a \
-             <ve\
-rstretch>0</vers\
-tretch>\x0d\x0a       \
-      </sizepoli\
-cy>\x0d\x0a           \
- </property>\x0d\x0a  \
-          <prope\
-rty name=\x22maximu\
-mSize\x22>\x0d\x0a       \
-      <size>\x0d\x0a  \
-            <wid\
-th>100</width>\x0d\x0a\
-              <h\
-eight>16777215</\
-height>\x0d\x0a       \
-      </size>\x0d\x0a \
-           </pro\
-perty>\x0d\x0a        \
-    <property na\
-me=\x22text\x22>\x0d\x0a    \
-         <string\
->100</string>\x0d\x0a \
-           </pro\
-perty>\x0d\x0a        \
-    <property na\
-me=\x22alignment\x22>\x0d\
-\x0a             <s\
-et>Qt::AlignRigh\
-t|Qt::AlignTrail\
-ing|Qt::AlignVCe\
-nter</set>\x0d\x0a    \
-        </proper\
-ty>\x0d\x0a           \
-</widget>\x0d\x0a     \
-     </item>\x0d\x0a  \
-        <item ro\
-w=\x222\x22 column=\x221\x22\
->\x0d\x0a           <w\
-idget class=\x22QLi\
-neEdit\x22 name=\x22nu\
-mSamples\x22>\x0d\x0a    \
-        <propert\
-y name=\x22sizePoli\
-cy\x22>\x0d\x0a          \
-   <sizepolicy h\
-sizetype=\x22Fixed\x22\
- vsizetype=\x22Fixe\
-d\x22>\x0d\x0a           \
-   <horstretch>0\
-</horstretch>\x0d\x0a \
-             <ve\
-rstretch>0</vers\
-tretch>\x0d\x0a       \
-      </sizepoli\
-cy>\x0d\x0a           \
- </property>\x0d\x0a  \
-          <prope\
-rty name=\x22maximu\
-mSize\x22>\x0d\x0a       \
-      <size>\x0d\x0a  \
-            <wid\
-th>100</width>\x0d\x0a\
-              <h\
-eight>16777215</\
-height>\x0d\x0a       \
-      </size>\x0d\x0a \
-           </pro\
-perty>\x0d\x0a        \
-    <property na\
-me=\x22text\x22>\x0d\x0a    \
-         <string\
->5</string>\x0d\x0a   \
-         </prope\
-rty>\x0d\x0a          \
-  <property name\
-=\x22alignment\x22>\x0d\x0a \
-            <set\
->Qt::AlignRight|\
-Qt::AlignTrailin\
-g|Qt::AlignVCent\
-er</set>\x0d\x0a      \
-      </property\
->\x0d\x0a           </\
-widget>\x0d\x0a       \
-   </item>\x0d\x0a    \
-      <item row=\
-\x224\x22 column=\x220\x22>\x0d\
-\x0a           <wid\
-get class=\x22QLabe\
-l\x22 name=\x22label_5\
-\x22>\x0d\x0a            \
-<property name=\x22\
-text\x22>\x0d\x0a        \
-     <string>Min\
-imum Height (mm)\
-</string>\x0d\x0a     \
-       </propert\
-y>\x0d\x0a            \
-<property name=\x22\
-buddy\x22>\x0d\x0a       \
-      <cstring>m\
-inHeight</cstrin\
-g>\x0d\x0a            \
-</property>\x0d\x0a   \
-        </widget\
->\x0d\x0a          </i\
-tem>\x0d\x0a          \
-<item row=\x221\x22 co\
-lumn=\x221\x22>\x0d\x0a     \
-      <widget cl\
-ass=\x22QLineEdit\x22 \
-name=\x22maxHeight\x22\
->\x0d\x0a            <\
-property name=\x22s\
-izePolicy\x22>\x0d\x0a   \
-          <sizep\
-olicy hsizetype=\
-\x22Fixed\x22 vsizetyp\
-e=\x22Fixed\x22>\x0d\x0a    \
-          <horst\
-retch>0</horstre\
-tch>\x0d\x0a          \
-    <verstretch>\
-0</verstretch>\x0d\x0a\
-             </s\
-izepolicy>\x0d\x0a    \
-        </proper\
-ty>\x0d\x0a           \
- <property name=\
-\x22maximumSize\x22>\x0d\x0a\
-             <si\
-ze>\x0d\x0a           \
-   <width>100</w\
-idth>\x0d\x0a         \
-     <height>167\
-77215</height>\x0d\x0a\
-             </s\
-ize>\x0d\x0a          \
-  </property>\x0d\x0a \
-           <prop\
-erty name=\x22text\x22\
->\x0d\x0a             \
-<string>5</strin\
-g>\x0d\x0a            \
-</property>\x0d\x0a   \
-         <proper\
-ty name=\x22alignme\
-nt\x22>\x0d\x0a          \
-   <set>Qt::Alig\
-nRight|Qt::Align\
-Trailing|Qt::Ali\
-gnVCenter</set>\x0d\
-\x0a            </p\
-roperty>\x0d\x0a      \
-     </widget>\x0d\x0a\
-          </item\
->\x0d\x0a          <it\
-em row=\x220\x22 colum\
-n=\x220\x22>\x0d\x0a        \
-   <widget class\
-=\x22QLabel\x22 name=\x22\
-label\x22>\x0d\x0a       \
-     <property n\
-ame=\x22sizePolicy\x22\
->\x0d\x0a             \
-<sizepolicy hsiz\
-etype=\x22Fixed\x22 vs\
-izetype=\x22Preferr\
-ed\x22>\x0d\x0a          \
-    <horstretch>\
-0</horstretch>\x0d\x0a\
-              <v\
-erstretch>0</ver\
-stretch>\x0d\x0a      \
-       </sizepol\
-icy>\x0d\x0a          \
-  </property>\x0d\x0a \
-           <prop\
-erty name=\x22text\x22\
->\x0d\x0a             \
-<string>Max Size\
- (mm)</string>\x0d\x0a\
-            </pr\
-operty>\x0d\x0a       \
-     <property n\
-ame=\x22alignment\x22>\
-\x0d\x0a             <\
-set>Qt::AlignLea\
-ding|Qt::AlignLe\
-ft|Qt::AlignVCen\
-ter</set>\x0d\x0a     \
-       </propert\
-y>\x0d\x0a            \
-<property name=\x22\
-buddy\x22>\x0d\x0a       \
-      <cstring>m\
-axSize</cstring>\
-\x0d\x0a            </\
-property>\x0d\x0a     \
-      </widget>\x0d\
-\x0a          </ite\
-m>\x0d\x0a          <i\
-tem row=\x225\x22 colu\
-mn=\x221\x22>\x0d\x0a       \
-    <widget clas\
-s=\x22QCheckBox\x22 na\
-me=\x22chkMirror\x22>\x0d\
-\x0a            <pr\
-operty name=\x22tex\
-t\x22>\x0d\x0a           \
-  <string>Mirror\
- Image</string>\x0d\
-\x0a            </p\
-roperty>\x0d\x0a      \
-     </widget>\x0d\x0a\
-          </item\
->\x0d\x0a          <it\
-em row=\x226\x22 colum\
-n=\x220\x22 colspan=\x222\
-\x22>\x0d\x0a           <\
-widget class=\x22QL\
-abel\x22 name=\x22lblI\
-mage\x22>\x0d\x0a        \
-    <property na\
-me=\x22sizePolicy\x22>\
-\x0d\x0a             <\
-sizepolicy hsize\
-type=\x22Expanding\x22\
- vsizetype=\x22Expa\
-nding\x22>\x0d\x0a       \
-       <horstret\
-ch>0</horstretch\
->\x0d\x0a             \
- <verstretch>0</\
-verstretch>\x0d\x0a   \
-          </size\
-policy>\x0d\x0a       \
-     </property>\
-\x0d\x0a            <p\
-roperty name=\x22te\
-xt\x22>\x0d\x0a          \
-   <string/>\x0d\x0a  \
-          </prop\
-erty>\x0d\x0a         \
-  </widget>\x0d\x0a   \
-       </item>\x0d\x0a\
-         </layou\
-t>\x0d\x0a        </it\
-em>\x0d\x0a        <it\
-em>\x0d\x0a         <s\
-pacer name=\x22vert\
-icalSpacer\x22>\x0d\x0a  \
-        <propert\
-y name=\x22orientat\
-ion\x22>\x0d\x0a         \
-  <enum>Qt::Vert\
-ical</enum>\x0d\x0a   \
-       </propert\
-y>\x0d\x0a          <p\
-roperty name=\x22si\
-zeHint\x22 stdset=\x22\
-0\x22>\x0d\x0a           \
-<size>\x0d\x0a        \
-    <width>20</w\
-idth>\x0d\x0a         \
-   <height>40</h\
-eight>\x0d\x0a        \
-   </size>\x0d\x0a    \
-      </property\
->\x0d\x0a         </sp\
-acer>\x0d\x0a        <\
-/item>\x0d\x0a       <\
-/layout>\x0d\x0a      \
-</item>\x0d\x0a      <\
-item row=\x221\x22 col\
-umn=\x222\x22>\x0d\x0a      \
- <widget class=\x22\
-QProgressBar\x22 na\
-me=\x22progressBar\x22\
->\x0d\x0a        <prop\
-erty name=\x22value\
-\x22>\x0d\x0a         <nu\
-mber>0</number>\x0d\
-\x0a        </prope\
-rty>\x0d\x0a        <p\
-roperty name=\x22te\
-xtVisible\x22>\x0d\x0a   \
-      <bool>fals\
-e</bool>\x0d\x0a      \
-  </property>\x0d\x0a \
-      </widget>\x0d\
-\x0a      </item>\x0d\x0a\
-      <item row=\
-\x222\x22 column=\x222\x22>\x0d\
-\x0a       <layout \
-class=\x22QHBoxLayo\
-ut\x22 name=\x22imgLay\
-out\x22 stretch=\x220\x22\
->\x0d\x0a        <prop\
-erty name=\x22sizeC\
-onstraint\x22>\x0d\x0a   \
-      <enum>QLay\
-out::SetNoConstr\
-aint</enum>\x0d\x0a   \
-     </property>\
-\x0d\x0a        <item>\
-\x0d\x0a         <widg\
-et class=\x22QWidge\
-t\x22 name=\x22plotWid\
-get\x22 native=\x22tru\
-e\x22>\x0d\x0a          <\
-property name=\x22s\
-izePolicy\x22>\x0d\x0a   \
-        <sizepol\
-icy hsizetype=\x22E\
-xpanding\x22 vsizet\
-ype=\x22Expanding\x22>\
-\x0d\x0a            <h\
-orstretch>0</hor\
-stretch>\x0d\x0a      \
-      <verstretc\
-h>0</verstretch>\
-\x0d\x0a           </s\
-izepolicy>\x0d\x0a    \
-      </property\
->\x0d\x0a          <pr\
-operty name=\x22sty\
-leSheet\x22>\x0d\x0a     \
-      <string no\
-tr=\x22true\x22/>\x0d\x0a   \
-       </propert\
-y>\x0d\x0a         </w\
-idget>\x0d\x0a        \
-</item>\x0d\x0a       \
-</layout>\x0d\x0a     \
- </item>\x0d\x0a      \
-<item row=\x220\x22 co\
-lumn=\x222\x22>\x0d\x0a     \
-  <widget class=\
-\x22QPushButton\x22 na\
-me=\x22btnGenerate\x22\
->\x0d\x0a        <prop\
-erty name=\x22text\x22\
->\x0d\x0a         <str\
-ing>Generate Lit\
-hophane Model</s\
-tring>\x0d\x0a        \
-</property>\x0d\x0a   \
-    </widget>\x0d\x0a \
-     </item>\x0d\x0a  \
-   </layout>\x0d\x0a  \
-  </item>\x0d\x0a   </\
-layout>\x0d\x0a  </wid\
-get>\x0d\x0a  <widget \
-class=\x22QMenuBar\x22\
- name=\x22menubar\x22>\
-\x0d\x0a   <property n\
-ame=\x22geometry\x22>\x0d\
-\x0a    <rect>\x0d\x0a   \
-  <x>0</x>\x0d\x0a    \
- <y>0</y>\x0d\x0a     \
-<width>1024</wid\
-th>\x0d\x0a     <heigh\
-t>22</height>\x0d\x0a \
-   </rect>\x0d\x0a   <\
-/property>\x0d\x0a   <\
-widget class=\x22QM\
-enu\x22 name=\x22menuF\
-ile\x22>\x0d\x0a    <prop\
-erty name=\x22title\
-\x22>\x0d\x0a     <string\
->File</string>\x0d\x0a\
-    </property>\x0d\
-\x0a    <addaction \
-name=\x22actionOpen\
-\x22/>\x0d\x0a    <addact\
-ion name=\x22action\
-Save\x22/>\x0d\x0a    <ad\
-daction name=\x22se\
-parator\x22/>\x0d\x0a    \
-<addaction name=\
-\x22actionLoad_Sett\
-ings\x22/>\x0d\x0a    <ad\
-daction name=\x22ac\
-tionSave_Setting\
-s\x22/>\x0d\x0a    <addac\
-tion name=\x22separ\
-ator\x22/>\x0d\x0a    <ad\
-daction name=\x22ac\
-tionExit\x22/>\x0d\x0a   \
-</widget>\x0d\x0a   <w\
-idget class=\x22QMe\
-nu\x22 name=\x22menuIm\
-age\x22>\x0d\x0a    <prop\
-erty name=\x22title\
-\x22>\x0d\x0a     <string\
->Image</string>\x0d\
-\x0a    </property>\
-\x0d\x0a    <addaction\
- name=\x22actionGen\
-erate\x22/>\x0d\x0a   </w\
-idget>\x0d\x0a   <adda\
-ction name=\x22menu\
-File\x22/>\x0d\x0a   <add\
-action name=\x22men\
-uImage\x22/>\x0d\x0a  </w\
-idget>\x0d\x0a  <widge\
-t class=\x22QStatus\
-Bar\x22 name=\x22statu\
-sbar\x22/>\x0d\x0a  <acti\
-on name=\x22actionO\
-pen\x22>\x0d\x0a   <prope\
-rty name=\x22text\x22>\
-\x0d\x0a    <string>Lo\
-ad Image</string\
->\x0d\x0a   </property\
->\x0d\x0a   <property \
-name=\x22toolTip\x22>\x0d\
-\x0a    <string>Loa\
-d image file</st\
-ring>\x0d\x0a   </prop\
-erty>\x0d\x0a   <prope\
-rty name=\x22shortc\
-ut\x22>\x0d\x0a    <strin\
-g>Alt+O</string>\
-\x0d\x0a   </property>\
-\x0d\x0a  </action>\x0d\x0a \
- <action name=\x22a\
-ctionSave\x22>\x0d\x0a   \
-<property name=\x22\
-text\x22>\x0d\x0a    <str\
-ing>Save 3D Mode\
-l</string>\x0d\x0a   <\
-/property>\x0d\x0a   <\
-property name=\x22t\
-oolTip\x22>\x0d\x0a    <s\
-tring>Export mod\
-el to .STL file<\
-/string>\x0d\x0a   </p\
-roperty>\x0d\x0a   <pr\
-operty name=\x22sho\
-rtcut\x22>\x0d\x0a    <st\
-ring>Alt+S</stri\
-ng>\x0d\x0a   </proper\
-ty>\x0d\x0a  </action>\
-\x0d\x0a  <action name\
-=\x22actionGenerate\
-\x22>\x0d\x0a   <property\
- name=\x22text\x22>\x0d\x0a \
-   <string>Gener\
-ate</string>\x0d\x0a  \
- </property>\x0d\x0a  \
- <property name=\
-\x22shortcut\x22>\x0d\x0a   \
- <string>Alt+G</\
-string>\x0d\x0a   </pr\
-operty>\x0d\x0a  </act\
-ion>\x0d\x0a  <action \
-name=\x22actionExit\
-\x22>\x0d\x0a   <property\
- name=\x22text\x22>\x0d\x0a \
-   <string>Exit<\
-/string>\x0d\x0a   </p\
-roperty>\x0d\x0a   <pr\
-operty name=\x22sho\
-rtcut\x22>\x0d\x0a    <st\
-ring>Esc</string\
->\x0d\x0a   </property\
->\x0d\x0a  </action>\x0d\x0a\
-  <action name=\x22\
-actionLoad_Setti\
-ngs\x22>\x0d\x0a   <prope\
-rty name=\x22text\x22>\
-\x0d\x0a    <string>Lo\
-ad Settings</str\
-ing>\x0d\x0a   </prope\
-rty>\x0d\x0a  </action\
->\x0d\x0a  <action nam\
-e=\x22actionSave_Se\
-ttings\x22>\x0d\x0a   <pr\
-operty name=\x22tex\
-t\x22>\x0d\x0a    <string\
->Save Settings</\
-string>\x0d\x0a   </pr\
-operty>\x0d\x0a  </act\
-ion>\x0d\x0a </widget>\
-\x0d\x0a <resources>\x0d\x0a\
-  <include locat\
-ion=\x22litho_gen.q\
-rc\x22/>\x0d\x0a </resour\
-ces>\x0d\x0a <connecti\
-ons/>\x0d\x0a</ui>\x0d\x0a\
-\x00\x00\x00)\
-L\
-abel{\x0d\x0a    backg\
-round-color: #22\
-4466;\x0d\x0a}\
+\x00\x00\x06u\
+\x00\
+\x007\x00x\x9c\xed[\xddo\xdb6\x10\x7f\x1f\xb0\xff\
+\x81\xf0\xd3\x86a\x95\xed$M\x11(.\x9a.M\x0a\
+8k:g)\xb0\x97\x80\x96\x18\x9b(Ej\x14\x95\
+\xd8\xc3\xfe\xf8\x91\xfa\xa4(\xda\x96-\xc7iV?\xc5\
+<\x1d\x8f\xf7\xf9;J\xb8\xb8og\x01\x01\x0f\x88G\
+\x98\xd1\xd3N\xefU\xb7\x03\x10\xf5\x98\x8f\xe9\xe4\xb4\xf3\
+\xe7\xcd\x87_\xdft\xde\x0e~\xfc\xc1\x8dq\xc9u(\
+\xb9$\x0d\xb80\x16S\xc6\x07\x17\x1cM\xc0%\xe4\x04\
+\xcd]'\xa3\xa9\xc7\x1e\x81Q4\xb8\x82\x98~\xc1\xd4\
+g\x8f\xae\x93R\xd4\xb3G\xecO\x90\x00\x09\xe1\xb4\xf3\
+\xb9d\xea\x00\x0a\x03t\xda\xd1(j\x03pC\xceB\
+\xc4\xc5<{>A,@\x82\xcf\xd3\xa7\xc0\xe5\xc8\x13\
+\xe9O\xe0\xce\x06]\xd7\x99\xe5\xab\xb9Z\xcd\xf3\x95<\
+XL\x07\xbdn\xff\xd0u\xd2\xdf\xd9\x83)\xc2\x93\xa9\
+\x18\x1c\xbf~\xe3:\xd9\xefT\xb2S\x88v\x9d\x5c\x09\
+\xabJ\x8f\x89\xba7X\x10\x94k\x15\x09.=9\x18\
+b\xe9\x94p\x0a)\x02\x17\x88\x22\x0e\x05\xe3\xae\x93=\
+\xb4I6\xdc\xf3%Y\xe6\xae\xf1\x10\x15\x1c\x92\x94'\
+?\xc9\xd0%\xc2\xff\xa0kF\xb0\x97;H\xea\x22I\
+aB\x02S\xf5[\xccC\xc9x>\x0b!U\xe1\xee\
+\x80\x07\x1b5\xdb-\xfd\xc3\xb8T\x18\x09o\xaa\xfc\xa9\
+\xadr\x06\x95\x1f%\x83\xb6\xca\xcewJ\x05r\xcfV\
+\x8c\x06.\x81s\x16\x97V_p\xec\x0f\x13Rn\xf9\
+\xa4\xa0\xdc\x1d\x14va\x81\x02\xc0\xd9\xe3i\xa7\xdf\x01\
+\x1e#q s\xb4[*\xbe\x8e\xd4~\xb1\xad\xe6Q\
+\x82\xee\xc5\x15\xe4\x13LK\x1e\xe0\xd28\x18#>\xe8\
+K\x8b\xb3\x9f\xc5~\xc3:\x8bH\xc1\xc2-K\xe4*\
+o\xb7,s\xcc\x84`A[\xa1+\xa2T\x8f\xd3\xed\
+\x19\x9bU\xe3$SJ`\x0f\x92\x8cZnM\xa5k\
+\xeb\xb5\x82\xae\x0bj\xa2h\x0e#z\x81\x0e\xe1\x18\x91\
+\x5c4Q\x8b2A\x8b=\x86_\x03Lq\x10\x07#\
+Y\x15&kZ\xac&\xb1\x00/\xe5r\x1d\xbb4\x8e\
+\x0c\xb9\xbaU\x0c\xd3\x18\x1c\x8bdK\xbc\x16\xa8\x0cg\
+O\xa6r\xef\xf5\xf1\xf1q\xbfw\xf44\x9a\x0b4\x13\
+\x16\x95S\x04\xbe\xc63D\x22\xe7V\xf2\xa3Y\x05\x97\
+78i\x1c\xfb\xfe\xbc~\x94\x97I\x95\xa52\x82A\
+HP$\xdb\xe1Z'%\x0e\x94IWMW\xc7L\
+}=\x83\x0f\xcb\x0c\xee\xad\xca`L\xd1\xb9\x8f\x8b\xfa\
+\x90\xd9y\x99\xc4aU\x1a\xd7;\x8d\xe6_k\xcb\xf9\
+ \xdd\xedW\xdaMJ\xb1\xa4\xc6\x8a\x9eSr\xaeh\
+>\x9a\xbf\xcc.\xb4\xd2\xef[\xac\x82\xee\xb7\x5c\x05\xdd\
+\xb6\x99\x0f\x09\x9e\xd0@^N,G\xc8\xb4\xfd,N\
+N\xde)\x96?\x94a\xff\x16\xcb\x1b\x0e1\x91\xc7\x96\
+\x94\xdb\xf7R\x08R7$d:`\x8b\xc5\xd1k\x05\
+\xef\xfd=\xbc\xaf\xa5\xf23&\xf6\x15\x9c\x81\xbf@\x8a\
+f\xe0\xa7 \xf8\xf9\x89!^\xba1=l\x07\x08\x7f\
+\xb09\xc2\x8fa\x84\xf6\x10o\xb7x\x0f\xf1v\xe9/\
+\x0c\xe2\x0fZA\xfc\xe1\x1e\xe2\xd7R\xf9\x19\x13\xfbL\
+b\x19\xc8A\xf7I\xc1\xbdD\xcd\x1d\xa0\xfbQ\xf3\xfc\
+}?E\xdeW\xf9\xca\x5c|$\x9a~\xfdH\xd5\x1b\
+\xf3\xaa$^\xea\xd7T\x04\xf8\x18\xc0\x09Z\xd3\xb1\x1b\
+\x98\xdbm\xf1\xba\x02g\xb6\x9c\xdew\xb2\xffi'K\
+\xb4\xfb\xaezY\x7f\xf3\xe2(\xbf9\xec\xeb\xe3;\xa9\
+\x8f\xa3\xef\xac:\x0e[\xdd\xf4\x8e\xf67\xbd\xb5T~\
+\xce\x97\xf94\x12\xbb|\x9d\xcf\xbf\x84\xee\xe0\xc2\xd7k\
+u\x03\xda\xbf\xcd\xdb-\xdec\xbc]\xfa\x0b\xc3\xf8n\
+\x1b\x8c\xdfEU\x5cst\x8f8\x7fI\x95\xb1\xefk\
+\xba\xca\xcf\xfc\x91Z\xd9\xb4\x95\x8e\xd6\xb4\xb0\x87\x08\xfa\
+\x95B\x1e\xa2{\xd1\xaa\xac7\xf8V\xae\xac\xde\xed\xb7\
+\x94U\xad\xd5\xf2-\xe5\x0as\xcex\xabo)\xa9\x88\
+]}Ky\xad\x83\xa5\xfa\x19\x85\x90\xaa\xb7\xc8u\x80\
+sL\x12m\xb7\x8f\x9dM\xa7\x8eJ9\xdf&~.\
+\x0b\xb8\xb3\xdd\xe0\xbaN:\xd3\xa2\xd1jL\xf59\x18\
+\x19u\x0fqc\x80f\x94\x10\x8d\xb9\x17\xc32\xc6\xb1\
+,~(0\xa3f\xca \x1a\x07\x09\x86\xdcf\xf2\x5c\
+'!U\xf5\xb7\x1ak\xcb\x9cK,q\x0aD\xc2\x97\
+(c\xe9\xec6\xc4MQ|\x11\x9e\xe7h~\xb8\xa0\
+\x03YP\xdc\xae\xaedL<\xb5\xc4\xe5\xb5\xa8\x18\x0c\
+\xf6\xbb\xbd^\x85f\x05^s6\xe1(\x8a\xce \xcf\
+\xeb0\xd4H\xba.\x863\x1f \x89\xab\xb5\x9a\xcfh\
+\xd5G\xb4\x16\x98l\xcb\xef[\x1c\xe111\x04\x8f\x19\
+#\x83{H\x22\x09e\xc9\xef\xe5\x82k9\xbe\xd8M\
+\xfd\x05n2&\xba.k\xe3a8\x98\xe4\x84\xac\xe2\
+\x8dl\xb2%\xdf{F%3\xc4F\xab\xccr<\x95\
+wr2B\xe2wV\xb2\xd6\xf2\xdd\xee\xcbZ1.\
+\x9d\xea\x0c\x09\x13%E\xe0\x07\xe5~n\x04\xb49\xf4\
+n\x07x\x9b\xc2nC\xd0]\x08\xb9M\xe1B\xcc\x09\
+\x1aM\x112A7\x83\x5c@\x99\xe0\x99\xdb\x9cF\x05\
+^\x83\xde\x16\x05\xdemX\xe0q4=\x8b\x85\x90\xc0\
+\x9a\xdf\x91\x04\xcd\xc6\x82\xd1\xb2|\xad5\x9b\xfcf\x91\
+o\x06\xda\x9c\xf1\x15\xf3\x11\xb1\x5c36\xa8N\xc3\x05\
+\xfa\xc3\xca\xa3\x8a\x98\xda\x84\xb7,\x19\x0d\xd2\xe4\xe54\
+\x1e\x17p\xb6b\xb8\xbb2\xddm\x8cw\x1b\xf3\xdd\x8b\
+\x07\xbc\x8b\xb6\xd0\xef\x1bmA\x9b\xf0\xae\xcf$[\xcc\
+\xd0m\xf8\x80Kd\xac\xc5K\x9b\x04/\x83\xa5v\x18\
+q\xa9\xc5\xc4\x85\xbe\x0f=\xd5{\xf3\x0b}\xb2\xf8\x14\
+\x22Z\xe4\xf5\x02\x9e\x11|@\x8by\x22\x14\xc2d\xfa\
+|\x95\x98!\x83\xfe\x9d\x84=!\xb5\x8c\x9a\x9c\xd9\x80\
+\xb9\xf1\xe1\xe73,r\x9ejn\xae\x0aG\xe5\xba\xda\
+,\x1e\xb6\xfbx\xd3\x80\x14UkW\xd6\xdcT$\x8c\
+\xb3\x84!5\xc1Y]Q#y;\x8b\xf5kB\x94\
+\x10TUe\xbb\x17\xa5\x90\xbd\xe8tx)\xfeqA\
+\xa6\x81\xed\x8d\xa5V&\xb5\xc9vFnph\x15\x87\
+\x958p_+\x83U2#\xd9}\x84\x17\xd7t|\
+G\xc4/\x9f\x96\x8ar\x9d\xd4\xf8\x85^I\x8a\xa6\xb9\
+W\x14;8\xf8\xcd\x86\xb1\x1b:F6`i\x1c\x08\
+\x94@ \x18x5\xba\x19n\xd9E\xa3v.2\x1a\
+T\x137\xe5[\xb6g\xc3E;\x1b\x12\x5ci\xae\xbf\
+b\xdf\x8e\xee\xe7\x91\xd7N\xf3*\x1c\xafY\xbf\xf9\xbe\
+\xf65\xb2\x89\x0aI\xb1\xac\xad\x82\x8e|\xb2\xfbG,\
+\xe6\x1e\x8aR6L=\x12\xfb\x08\x10\xe6%\xef\xa7\xa7\
+\x1d\xa2\xee=w\x13D_\xfd\xcd\xbd\x14\xfdTS\xd7\
+v\xb9\x1e\xa3\x14%\xe2#\xf5\xdcub,\xff\xfc\x07\
+\xc1\xc3\xef\xa3\
+\x00\x00\x00k\
+Q\
+Label{\x0d\x0a    back\
+ground-color: bl\
+ack;\x0d\x0a    color:\
+ lime;\x0d\x0a    padd\
+ing-left: 1em;\x0d\x0a\
+    padding-righ\
+t: 1em;\x0d\x0a}\
 "
 
 qt_resource_name = b"\
-\x00\x09\
-\x0alxC\
-\x00r\
-\x00e\x00s\x00o\x00u\x00r\x00c\x00e\x00s\
+\x00\x02\
+\x00\x00\x07\xb9\
+\x00u\
+\x00i\
 \x00\x0c\
 \x0b\xbdK\x19\
 \x00l\
@@ -801,10 +143,10 @@ qt_resource_struct = b"\
 \x00\x00\x00\x00\x00\x00\x00\x00\
 \x00\x00\x00\x00\x00\x02\x00\x00\x00\x02\x00\x00\x00\x02\
 \x00\x00\x00\x00\x00\x00\x00\x00\
-\x00\x00\x00\x18\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\
-\x00\x00\x01\x80\x86\xd3\xb4p\
-\x00\x00\x006\x00\x00\x00\x00\x00\x01\x00\x00/\xe3\
-\x00\x00\x01\x80\x86\xe5\xf8\xbe\
+\x00\x00\x00\x0a\x00\x01\x00\x00\x00\x01\x00\x00\x00\x00\
+\x00\x00\x01\x80\x86\xee\xb2\xca\
+\x00\x00\x00(\x00\x00\x00\x00\x00\x01\x00\x00\x06y\
+\x00\x00\x01\x80\x86\xec\xdai\
 "
 
 def qInitResources():

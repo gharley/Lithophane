@@ -1,7 +1,7 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
-  <qresource prefix="resources">
-    <file>litho_gen.ui</file>
-    <file>litho_gen.qss</file>
+  <qresource prefix="ui">
+    <file alias="litho_gen.ui">litho_gen.ui</file>
+    <file alias="litho_gen.qss">litho_gen.qss</file>
   </qresource>
 </RCC>
