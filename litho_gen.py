@@ -6,17 +6,24 @@ import time
 import numpy as np
 
 from PyQt5 import uic
-from PyQt5.QtCore import QFile, QDir
+from PyQt5.QtCore import QFile, Qt
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QLineEdit, QCheckBox, QFileDialog, QWidget
 
-import litho_gen_rc
-
-from PIL import Image
+from PIL import Image, ImageOps
 import pyvistaqt as pvqt
 
 from common import DotDict
 import Lithophane as lp
+
+import litho_gen_rc
+
+# Handle high res monitors
+if hasattr(Qt, 'AA_EnableHighDpiScaling'):
+    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+
+if hasattr(Qt, 'AA_UseHighDpiPixmaps'):
+    QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
 
 
 class Main(QMainWindow):
@@ -86,7 +93,8 @@ class Main(QMainWindow):
             self.config.image_dir = dir_name[0]
             self.props.img = Image.open(dir_name[0])
             scale = 300.0 / self.props.img.width
-            self.lblImage.setPixmap(QPixmap(dir_name[0]).scaled(self.props.img.width * scale, self.props.img.height * scale))
+            img = ImageOps.scale(ImageOps.grayscale(self.props.img), scale, True)
+            self.lblImage.setPixmap(QPixmap())
 
     def _load_specs(self):
         dialog = QFileDialog()
@@ -108,14 +116,13 @@ class Main(QMainWindow):
                     widget.setText(value)
 
     def _load_ui(self):
-        # ui_file = QFile('litho_gen.ui')
-        ui_file = QFile(':ui/litho_gen.ui')
+        ui_file = QFile('litho_gen.ui')
+        # ui_file = QFile(':ui/litho_gen.ui')
         ui_file.open(QFile.ReadOnly)
         self._main = uic.loadUi(ui_file, self)
         ui_file.close()
 
         self._init_connections()
-        self.resize(1920, 1080)
 
         self.show()
 

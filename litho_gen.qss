@@ -1,9 +1,15 @@
-QMainWindow, QLabel, QCheckBox{
-    background-color: black;
-    color: lime;
+*{
+    background-color: #d3d3d3;
+    color: black;
 }
 
 QLabel{
-    padding: .5em 1em;
     min-width: 10em;
+}
+
+QLabel.input, QLineEdit{
+    padding: .5em 0 .5em .25em;
+    border-style: solid;
+    border-color: black;
+    border-width: 1px;
 }
