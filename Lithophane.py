@@ -44,7 +44,7 @@ class Lithophane:
         img = props.img
 
         scale = props.maxSize * props.numSamples / max(img.width, img.height)
-        gray = ImageOps.scale(ImageOps.grayscale(img), scale, True)  # .rotate(-90)  # Not sure why rotate is necessary
+        gray = ImageOps.scale(ImageOps.grayscale(img), scale, True)
         if props.chkInvert: gray = ImageOps.invert(gray)
         if props.chkMirror: gray = ImageOps.mirror(gray)
         data = gray.getdata()
