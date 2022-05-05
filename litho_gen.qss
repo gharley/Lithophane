@@ -1,6 +1,9 @@
-QLabel{
+QMainWindow, QLabel, QCheckBox{
     background-color: black;
     color: lime;
+}
+
+QLabel{
     padding: .5em 1em;
     min-width: 10em;
 }
