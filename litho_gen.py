@@ -7,10 +7,11 @@ import numpy as np
 
 from PyQt5 import uic
 from PyQt5.QtCore import QFile, Qt
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QPixmap, QImage
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QLineEdit, QCheckBox, QFileDialog, QWidget
 
 from PIL import Image, ImageOps
+from PIL.ImageQt import ImageQt
 import pyvistaqt as pvqt
 
 from common import DotDict
@@ -69,6 +70,9 @@ class Main(QMainWindow):
         self.btnGenerate.clicked.connect(self.process_image)
         self.actionExit.triggered.connect(self.close)
 
+        self.chkInvert.stateChanged.connect(self._set_pixmap)
+        self.chkMirror.stateChanged.connect(self._set_pixmap)
+
     def _init_properties(self):
         for obj in self.findChildren(QCheckBox):
             self.props[obj.objectName()] = obj.isChecked()
@@ -92,9 +96,7 @@ class Main(QMainWindow):
         if dir_name[0]:
             self.config.image_dir = dir_name[0]
             self.props.img = Image.open(dir_name[0])
-            scale = 300.0 / self.props.img.width
-            img = ImageOps.scale(ImageOps.grayscale(self.props.img), scale, True)
-            self.lblImage.setPixmap(QPixmap())
+            self._set_pixmap()
 
     def _load_specs(self):
         dialog = QFileDialog()
@@ -215,6 +217,15 @@ class Main(QMainWindow):
 
             with open(dir_name[0], 'w') as out_file:
                 json.dump(specs, out_file)
+
+    def _set_pixmap(self):
+        scale = 300.0 / self.props.img.width
+        img = ImageOps.scale(ImageOps.grayscale(self.props.img), scale, True)
+
+        if self.chkInvert.isChecked(): img = ImageOps.invert(img)
+        if self.chkMirror.isChecked(): img = ImageOps.mirror(img)
+
+        self.lblImage.setPixmap(QPixmap.fromImage(ImageQt(img)))
 
 
 if __name__ == "__main__":
