@@ -13,3 +13,11 @@ QLabel.input, QLineEdit{
     border-color: black;
     border-width: 1px;
 }
+
+QLineEdit{
+    background-color: whitesmoke;
+}
+
+QWidget#plotWidget{
+    background-color: #aaaaaa;
+}

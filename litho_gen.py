@@ -152,7 +152,7 @@ class Main(QMainWindow):
 
                 self.progressBar.setValue(value)
                 value += 1
-                time.sleep(0.5)
+                time.sleep(1)
 
             self.progressBar.setValue(0)
 
@@ -160,6 +160,7 @@ class Main(QMainWindow):
         thread.start()
 
         self._init_properties()
+        dpi_ratio = app.devicePixelRatio()
 
         if self._mesh_id is not None:
             self._mesh_plotter.remove_actor(self._mesh_id)
@@ -172,21 +173,13 @@ class Main(QMainWindow):
         mesh = litho.scale_to_final_size(mesh, self.props)
 
         geo = self.plotWidget.geometry()
-        scale = max(geo.width(), geo.height()) / max(mesh.bounds[1], mesh.bounds[3])
-        matrix = np.array([
-            [scale, 0, 0, 0],
-            [0, scale, 0, 0],
-            [0, 0, scale, 0],
-            [0, 0, 0, 1]])
-
-        self._mesh_id = self._mesh_plotter.add_mesh(mesh.copy().transform(matrix), color=[1.0, 1.0, 0.0], render_points_as_spheres=True, pbr=False,
-                                                    metallic=1.0)
-        # self._mesh_plotter.add_camera_orientation_widget()
+        self._mesh_plotter.window_size = [int(geo.width()), int(geo.height())]
+        display_mesh = mesh.copy()
+        self._mesh_id = self._mesh_plotter.add_mesh(display_mesh, color=[1.0, 1.0, 0.0], render_points_as_spheres=True, pbr=False, metallic=1.0)
         self._mesh_plotter.show_axes()
-        self._mesh_plotter.show()
-        self._mesh_plotter.window_size = [geo.width(), geo.height()]
         self._mesh_plotter.view_xy()
-        self._mesh_plotter.update()
+        self._mesh_plotter.show()
+        # self._mesh_plotter.update()
 
         self._mesh = mesh
 
