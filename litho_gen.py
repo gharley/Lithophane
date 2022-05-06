@@ -144,7 +144,7 @@ class Main(QMainWindow):
         in_progress = True
 
         def update_progress():
-            value = 0
+            value = 1
             while in_progress:
                 if value > self.progressBar.maximum():
                     value = 0
@@ -152,7 +152,7 @@ class Main(QMainWindow):
 
                 self.progressBar.setValue(value)
                 value += 1
-                time.sleep(1)
+                time.sleep(0.2)
 
             self.progressBar.setValue(0)
 
@@ -173,13 +173,16 @@ class Main(QMainWindow):
         mesh = litho.scale_to_final_size(mesh, self.props)
 
         geo = self.plotWidget.geometry()
-        self._mesh_plotter.window_size = [int(geo.width()), int(geo.height())]
+        # self._mesh_plotter.window_size = [int(geo.width()), int(geo.height())]
+        # self._mesh_plotter.show()
+
+        self._mesh_plotter.set_scale(dpi_ratio, dpi_ratio)
+
         display_mesh = mesh.copy()
         self._mesh_id = self._mesh_plotter.add_mesh(display_mesh, color=[1.0, 1.0, 0.0], render_points_as_spheres=True, pbr=False, metallic=1.0)
         self._mesh_plotter.show_axes()
         self._mesh_plotter.view_xy()
         self._mesh_plotter.show()
-        # self._mesh_plotter.update()
 
         self._mesh = mesh
 
