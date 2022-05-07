@@ -8,10 +8,9 @@ QLabel{
 }
 
 QLabel.input, QLineEdit{
-    padding: .5em 0 .5em .25em;
-    border-style: solid;
-    border-color: black;
-    border-width: 1px;
+    padding: .25em 0 .25em .25em;
+    border: 1px solid gray;
+    border-radius: 5px;
 }
 
 QLineEdit{
@@ -20,4 +19,15 @@ QLineEdit{
 
 QWidget#plotWidget{
     background-color: #aaaaaa;
+}
+
+QProgressBar {
+    border: 2px solid gray;
+    border-radius: 5px;
+}
+
+QProgressBar::chunk {
+    background-color: #05B8CC;
+    width: 20px;
+    margin: 0.5px;
 }
