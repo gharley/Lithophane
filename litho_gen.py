@@ -19,7 +19,7 @@ import Lithophane as lp
 
 import litho_gen_rc
 
-# Handle high res monitors
+# Handle high-res monitors
 if hasattr(Qt, 'AA_EnableHighDpiScaling'):
     QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
 
@@ -28,28 +28,29 @@ if hasattr(Qt, 'AA_UseHighDpiPixmaps'):
 
 
 class Main(QMainWindow):
+    _img = None
+    _heights = None
+    _vertices = None
+    _mesh = None
+    _mesh_id = None
+    _mesh_plotter = None
+
+    config = DotDict()
+    props = DotDict()
+
     def __init__(self):
         super().__init__()
 
-        self._img = None
-        self._heights = None
-        self._vertices = None
-        self._mesh = None
-        self._img_id = None
-        self._mesh_id = None
-        self._mesh_plotter = None
-
-        self.config = DotDict()
         self.config.spec_dir = ''
-
-        self.props = DotDict()
-
         self._load_config()
         self._load_ui()
 
         self._mesh_plotter = pvqt.QtInteractor(self.plotWidget)
+        self._mesh_plotter.show()
+
         geo = self.plotWidget.geometry()
-        self._mesh_plotter.window_size = [geo.width(), geo.height()]
+        dpi_ratio = int(app.devicePixelRatio())
+        self._mesh_plotter.window_size = [geo.width() * dpi_ratio, geo.height() * dpi_ratio]
 
     def closeEvent(self, event) -> None:
         with open('config.json', 'w') as out_file:
@@ -58,8 +59,8 @@ class Main(QMainWindow):
     def resizeEvent(self, event) -> None:
         if self._mesh_plotter is not None:
             geo = self.plotWidget.geometry()
-            self._mesh_plotter.window_size = [geo.width(), geo.height()]
-            self._mesh_plotter.update()
+            dpi_ratio = int(app.devicePixelRatio())
+            self._mesh_plotter.window_size = [geo.width() * dpi_ratio, geo.height() * dpi_ratio]
 
     def _init_connections(self):
         self.actionOpen.triggered.connect(self._load_image)
@@ -160,7 +161,6 @@ class Main(QMainWindow):
         thread.start()
 
         self._init_properties()
-        dpi_ratio = app.devicePixelRatio()
 
         if self._mesh_id is not None:
             self._mesh_plotter.remove_actor(self._mesh_id)
@@ -171,12 +171,6 @@ class Main(QMainWindow):
         pcd, base = litho.create_point_cloud_from_vertices(self._vertices, self.props)
         mesh = litho.create_mesh_from_point_cloud(pcd, base)
         mesh = litho.scale_to_final_size(mesh, self.props)
-
-        geo = self.plotWidget.geometry()
-        # self._mesh_plotter.window_size = [int(geo.width()), int(geo.height())]
-        # self._mesh_plotter.show()
-
-        self._mesh_plotter.set_scale(dpi_ratio, dpi_ratio)
 
         display_mesh = mesh.copy()
         self._mesh_id = self._mesh_plotter.add_mesh(display_mesh, color=[1.0, 1.0, 0.0], render_points_as_spheres=True, pbr=False, metallic=1.0)
@@ -215,6 +209,8 @@ class Main(QMainWindow):
                 json.dump(specs, out_file)
 
     def _set_pixmap(self):
+        if self.props.img is None: return
+
         scale = 300.0 / self.props.img.width
         img = ImageOps.scale(ImageOps.grayscale(self.props.img), scale, True)
 
