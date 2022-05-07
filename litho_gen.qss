@@ -4,25 +4,26 @@
 }
 
 QLabel{
+    border: 1px outset gray;
     min-width: 10em;
+}
+
+QLabel#lblImage{
+    border: none;
 }
 
 QLabel.input, QLineEdit{
     padding: .25em 0 .25em .25em;
-    border: 1px solid gray;
     border-radius: 5px;
 }
 
 QLineEdit{
     background-color: whitesmoke;
-}
-
-QWidget#plotWidget{
-    background-color: #aaaaaa;
+    border: 1px inset gray;
 }
 
 QProgressBar {
-    border: 2px solid gray;
+    border: 2px inset gray;
     border-radius: 5px;
 }
 
