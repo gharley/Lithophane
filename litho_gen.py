@@ -30,7 +30,6 @@ if hasattr(Qt, 'AA_UseHighDpiPixmaps'):
 class Main(QMainWindow):
     _img = None
     _heights = None
-    _vertices = None
     _mesh = None
     _mesh_id = None
     _mesh_plotter = None
@@ -166,19 +165,12 @@ class Main(QMainWindow):
             self._mesh_plotter.remove_actor(self._mesh_id)
 
         litho = lp.Lithophane()
+        self._mesh = litho.generate_mesh(self.props)
 
-        self._vertices = litho.prepare_image(self.props)
-        pcd, base = litho.create_point_cloud_from_vertices(self._vertices, self.props)
-        mesh = litho.create_mesh_from_point_cloud(pcd, base)
-        mesh = litho.scale_to_final_size(mesh, self.props)
-
-        display_mesh = mesh.copy()
+        display_mesh = self._mesh.copy()
         self._mesh_id = self._mesh_plotter.add_mesh(display_mesh, color=[1.0, 1.0, 0.0], render_points_as_spheres=True, pbr=False, metallic=1.0)
         self._mesh_plotter.show_axes()
         self._mesh_plotter.view_xy()
-        self._mesh_plotter.show()
-
-        self._mesh = mesh
 
         in_progress = False
 

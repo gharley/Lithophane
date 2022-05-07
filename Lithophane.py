@@ -40,6 +40,14 @@ class Lithophane:
 
         return np.array(vertices)
 
+    def generate_mesh(self, props):
+        vertices = self.prepare_image(props)
+        pcd, base = self.create_point_cloud_from_vertices(vertices, props)
+        mesh = self.create_mesh_from_point_cloud(pcd, base)
+        mesh = self.scale_to_final_size(mesh, props)
+
+        return mesh
+
     def prepare_image(self, props):
         img = props.img
 
