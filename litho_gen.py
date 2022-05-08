@@ -43,6 +43,7 @@ class Main(QMainWindow):
         self.config.spec_dir = ''
         self._load_config()
         self._load_ui()
+        self._set_control_states()
 
         self._mesh_plotter = pvqt.QtInteractor(self.plotWidget)
         self._mesh_plotter.show()
@@ -72,6 +73,7 @@ class Main(QMainWindow):
 
         self.chkInvert.stateChanged.connect(self._set_pixmap)
         self.chkMirror.stateChanged.connect(self._set_pixmap)
+        self.chkSmooth.stateChanged.connect(self._set_control_states)
 
     def _init_properties(self):
         for obj in self.findChildren(QCheckBox):
@@ -202,6 +204,12 @@ class Main(QMainWindow):
 
             with open(dir_name[0], 'w') as out_file:
                 json.dump(specs, out_file)
+
+    def _set_control_states(self):
+        enable = self.chkSmooth.isChecked()
+        self.sldSmooth.setEnabled(enable)
+        self.lblMin.setEnabled(enable)
+        self.lblMax.setEnabled(enable)
 
     def _set_pixmap(self):
         if self.props.img is None: return
