@@ -45,6 +45,7 @@ class Lithophane:
         pcd, base = self.create_point_cloud_from_vertices(vertices, props)
         mesh = self.create_mesh_from_point_cloud(pcd, base)
         mesh = self.scale_to_final_size(mesh, props)
+        mesh = mesh.fill_holes(1000, progress_bar=True)
 
         return mesh
 
