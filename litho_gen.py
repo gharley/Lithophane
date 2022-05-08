@@ -8,7 +8,7 @@ import numpy as np
 from PyQt5 import uic
 from PyQt5.QtCore import QFile, Qt
 from PyQt5.QtGui import QPixmap, QImage
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QLineEdit, QCheckBox, QFileDialog, QWidget
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QLineEdit, QCheckBox, QFileDialog, QWidget, QSlider
 
 from PIL import Image, ImageOps
 from PIL.ImageQt import ImageQt
@@ -77,6 +77,9 @@ class Main(QMainWindow):
         for obj in self.findChildren(QCheckBox):
             self.props[obj.objectName()] = obj.isChecked()
 
+        for obj in self.findChildren(QSlider):
+            self.props[obj.objectName()] = obj.value()
+
         for obj in self.findChildren(QLabel):
             buddy = obj.buddy()
             if buddy is not None:
@@ -118,8 +121,8 @@ class Main(QMainWindow):
                     widget.setText(value)
 
     def _load_ui(self):
-        # ui_file = QFile('litho_gen.ui')
-        ui_file = QFile(':ui/litho_gen.ui')
+        ui_file = QFile('litho_gen.ui')
+        # ui_file = QFile(':ui/litho_gen.ui')
         ui_file.open(QFile.ReadOnly)
         self._main = uic.loadUi(ui_file, self)
         ui_file.close()
@@ -128,8 +131,8 @@ class Main(QMainWindow):
 
         self.show()
 
-        # style_sheet = QFile('litho_gen.qss')
-        style_sheet = QFile(':ui/litho_gen.qss')
+        style_sheet = QFile('litho_gen.qss')
+        # style_sheet = QFile(':ui/litho_gen.qss')
         if style_sheet.exists():
             style_sheet.open(QFile.ReadOnly)
             style = str(style_sheet.readAll(), 'utf-8')

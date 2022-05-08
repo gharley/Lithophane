@@ -43,7 +43,13 @@ class Lithophane:
     def generate_mesh(self, props):
         vertices = self.prepare_image(props)
         pcd, base = self.create_point_cloud_from_vertices(vertices, props)
+
         mesh = self.create_mesh_from_point_cloud(pcd, base)
+        if props.chkSmooth:
+            n_iter = props.sldSmooth * 20
+            mesh = mesh.smooth(n_iter, progress_bar=True)
+
+        mesh.flip_normals()
         mesh = self.scale_to_final_size(mesh, props)
         mesh = mesh.fill_holes(1000, progress_bar=True)
 
