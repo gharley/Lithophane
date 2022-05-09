@@ -3,11 +3,10 @@ import sys
 import json
 import threading
 import time
-import numpy as np
 
 from PyQt5 import uic
 from PyQt5.QtCore import QFile, Qt
-from PyQt5.QtGui import QPixmap, QImage
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QLineEdit, QCheckBox, QFileDialog, QWidget, QSlider
 
 from PIL import Image, ImageOps
@@ -28,7 +27,6 @@ if hasattr(Qt, 'AA_UseHighDpiPixmaps'):
 
 
 class Main(QMainWindow):
-    _img = None
     _heights = None
     _mesh = None
     _mesh_id = None
@@ -102,6 +100,7 @@ class Main(QMainWindow):
             self.config.image_dir = dir_name[0]
             self.props.img = Image.open(dir_name[0])
             self._set_pixmap()
+            self._set_control_states()
 
     def _load_specs(self):
         dialog = QFileDialog()
@@ -210,6 +209,11 @@ class Main(QMainWindow):
         self.sldSmooth.setEnabled(enable)
         self.lblMin.setEnabled(enable)
         self.lblMax.setEnabled(enable)
+
+        enable = self.props.img is not None
+        self.actionSave.setEnabled(enable)
+        self.actionGenerate.setEnabled(enable)
+        self.btnGenerate.setEnabled(enable)
 
     def _set_pixmap(self):
         if self.props.img is None: return

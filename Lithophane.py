@@ -15,7 +15,7 @@ class Lithophane:
         if base is not None: mesh += base
 
         if mesh.n_faces > _THRESHOLD:
-            mesh = mesh.decimate_pro(1.0 - (_THRESHOLD / mesh.n_faces))
+            mesh = mesh.decimate_pro(1.0 - (_THRESHOLD / mesh.n_faces), progress_bar=True)
 
         return mesh
 
@@ -79,4 +79,4 @@ class Lithophane:
             [0, 0, scale, 0],
             [0, 0, 0, 1]])
 
-        return mesh.transform(matrix)
+        return mesh.transform(matrix, progress_bar=True)
