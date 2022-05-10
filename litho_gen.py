@@ -14,7 +14,7 @@ from PIL.ImageQt import ImageQt
 import pyvistaqt as pvqt
 
 from common import DotDict
-import Lithophane as lp
+from Lithophane import Lithophane
 
 import litho_gen_rc
 
@@ -118,12 +118,14 @@ class Main(QMainWindow):
 
                 if key.startswith('chk') or key.startswith('btn'):
                     widget.setChecked(value)
+                elif key.startswith('sld'):
+                    widget.setValue(value)
                 else:
                     widget.setText(value)
 
     def _load_ui(self):
-        ui_file = QFile('litho_gen.ui')
-        # ui_file = QFile(':ui/litho_gen.ui')
+        # ui_file = QFile('litho_gen.ui')
+        ui_file = QFile(':ui/litho_gen.ui')
         ui_file.open(QFile.ReadOnly)
         self._main = uic.loadUi(ui_file, self)
         ui_file.close()
@@ -132,8 +134,8 @@ class Main(QMainWindow):
 
         self.show()
 
-        style_sheet = QFile('litho_gen.qss')
-        # style_sheet = QFile(':ui/litho_gen.qss')
+        # style_sheet = QFile('litho_gen.qss')
+        style_sheet = QFile(':ui/litho_gen.qss')
         if style_sheet.exists():
             style_sheet.open(QFile.ReadOnly)
             style = str(style_sheet.readAll(), 'utf-8')
@@ -168,7 +170,7 @@ class Main(QMainWindow):
         if self._mesh_id is not None:
             self._mesh_plotter.remove_actor(self._mesh_id)
 
-        litho = lp.Lithophane()
+        litho = Lithophane()
         self._mesh = litho.generate_mesh(self.props)
 
         display_mesh = self._mesh.copy()
@@ -200,6 +202,9 @@ class Main(QMainWindow):
 
             for child in self.findChildren(QCheckBox):
                 specs[child.objectName()] = child.isChecked()
+
+            for child in self.findChildren(QSlider):
+                specs[child.objectName()] = child.value()
 
             with open(dir_name[0], 'w') as out_file:
                 json.dump(specs, out_file)
