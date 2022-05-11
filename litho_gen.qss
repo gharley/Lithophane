@@ -3,7 +3,7 @@
     color: black;
 }
 
-QLabel{
+QLabel, QGroupBox{
     border: 1px outset gray;
     min-width: 10em;
 }
@@ -17,7 +17,7 @@ QLabel{
     padding: 0 0 2em 0;
 }
 
-QLabel.input, QLineEdit{
+QLabel.input, QLineEdit, QGroupBox{
     padding: .25em 0 .25em .25em;
     border-radius: 5px;
 }

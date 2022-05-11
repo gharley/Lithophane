@@ -39,6 +39,57 @@
       <item row="2" column="0">
        <layout class="QVBoxLayout" name="leftSideLayout">
         <item>
+         <widget class="QGroupBox" name="groupBox">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>45</height>
+           </size>
+          </property>
+          <property name="title">
+           <string>Units</string>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+          <widget class="QRadioButton" name="btnMetric">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>20</y>
+             <width>80</width>
+             <height>18</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Metric</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+          </widget>
+          <widget class="QRadioButton" name="btnImperial">
+           <property name="geometry">
+            <rect>
+             <x>140</x>
+             <y>20</y>
+             <width>80</width>
+             <height>18</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Imperial</string>
+           </property>
+          </widget>
+         </widget>
+        </item>
+        <item>
          <layout class="QFormLayout" name="formLayout">
           <property name="horizontalSpacing">
            <number>0</number>
@@ -46,7 +97,7 @@
           <property name="verticalSpacing">
            <number>4</number>
           </property>
-          <item row="0" column="0">
+          <item row="3" column="0">
            <widget class="QLabel" name="label">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -80,7 +131,7 @@
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
+          <item row="3" column="1">
            <widget class="QLineEdit" name="maxSize">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -102,7 +153,7 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
+          <item row="4" column="0">
            <widget class="QLabel" name="label_2">
             <property name="minimumSize">
              <size>
@@ -127,7 +178,7 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
+          <item row="4" column="1">
            <widget class="QLineEdit" name="maxHeight">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -149,7 +200,7 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="0">
+          <item row="5" column="0">
            <widget class="QLabel" name="label_3">
             <property name="minimumSize">
              <size>
@@ -174,7 +225,7 @@
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
+          <item row="5" column="1">
            <widget class="QLineEdit" name="numSamples">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -196,7 +247,7 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
+          <item row="6" column="0">
            <widget class="QLabel" name="label_4">
             <property name="minimumSize">
              <size>
@@ -221,7 +272,7 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="1">
+          <item row="6" column="1">
            <widget class="QLineEdit" name="baseHeight">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -243,7 +294,7 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="0">
+          <item row="7" column="0">
            <widget class="QLabel" name="label_5">
             <property name="minimumSize">
              <size>
@@ -268,7 +319,7 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="1">
+          <item row="7" column="1">
            <widget class="QLineEdit" name="minHeight">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -290,21 +341,21 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="0">
+          <item row="8" column="0">
            <widget class="QCheckBox" name="chkInvert">
             <property name="text">
              <string>Invert Image</string>
             </property>
            </widget>
           </item>
-          <item row="5" column="1">
+          <item row="8" column="1">
            <widget class="QCheckBox" name="chkMirror">
             <property name="text">
              <string>Mirror Image</string>
             </property>
            </widget>
           </item>
-          <item row="7" column="0" colspan="2">
+          <item row="10" column="0" colspan="2">
            <widget class="QSlider" name="sldSmooth">
             <property name="minimumSize">
              <size>
@@ -329,14 +380,14 @@
             </property>
            </widget>
           </item>
-          <item row="8" column="0">
+          <item row="11" column="0">
            <widget class="QLabel" name="lblMin">
             <property name="text">
              <string>Min</string>
             </property>
            </widget>
           </item>
-          <item row="8" column="1">
+          <item row="11" column="1">
            <widget class="QLabel" name="lblMax">
             <property name="text">
              <string>Max</string>
@@ -346,14 +397,14 @@
             </property>
            </widget>
           </item>
-          <item row="9" column="0">
+          <item row="12" column="0">
            <widget class="QPushButton" name="btnGenerate">
             <property name="text">
              <string>Generate Lithophane Model</string>
             </property>
            </widget>
           </item>
-          <item row="6" column="0" colspan="2">
+          <item row="9" column="0" colspan="2">
            <widget class="QCheckBox" name="chkSmooth">
             <property name="text">
              <string>Smoothing</string>
@@ -510,6 +561,20 @@
    </property>
   </action>
  </widget>
+ <tabstops>
+  <tabstop>btnMetric</tabstop>
+  <tabstop>btnImperial</tabstop>
+  <tabstop>maxSize</tabstop>
+  <tabstop>maxHeight</tabstop>
+  <tabstop>numSamples</tabstop>
+  <tabstop>baseHeight</tabstop>
+  <tabstop>minHeight</tabstop>
+  <tabstop>chkInvert</tabstop>
+  <tabstop>chkMirror</tabstop>
+  <tabstop>chkSmooth</tabstop>
+  <tabstop>sldSmooth</tabstop>
+  <tabstop>btnGenerate</tabstop>
+ </tabstops>
  <resources>
   <include location="litho_gen.qrc"/>
  </resources>

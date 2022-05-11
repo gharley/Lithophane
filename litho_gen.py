@@ -32,6 +32,8 @@ class Main(QMainWindow):
     _mesh_id = None
     _mesh_plotter = None
 
+    _is_modelDirty = False
+
     config = DotDict()
     props = DotDict()
 
@@ -51,6 +53,9 @@ class Main(QMainWindow):
         self._mesh_plotter.window_size = [geo.width() * dpi_ratio, geo.height() * dpi_ratio]
 
     def closeEvent(self, event) -> None:
+        if self._is_modelDirty:
+            self._check_save()
+
         with open('config.json', 'w') as out_file:
             json.dump(self.config, out_file)
 
@@ -59,6 +64,9 @@ class Main(QMainWindow):
             geo = self.plotWidget.geometry()
             dpi_ratio = int(app.devicePixelRatio())
             self._mesh_plotter.window_size = [geo.width() * dpi_ratio, geo.height() * dpi_ratio]
+
+    def _check_save(self):
+        pass
 
     def _init_connections(self):
         self.actionOpen.triggered.connect(self._load_image)
@@ -72,6 +80,8 @@ class Main(QMainWindow):
         self.chkInvert.stateChanged.connect(self._set_pixmap)
         self.chkMirror.stateChanged.connect(self._set_pixmap)
         self.chkSmooth.stateChanged.connect(self._set_control_states)
+
+        self.btnMetric.toggled.connect(self._switch_units)
 
     def _init_properties(self):
         for obj in self.findChildren(QCheckBox):
@@ -93,6 +103,9 @@ class Main(QMainWindow):
                 self.config = DotDict(json.load(in_file))
 
     def _load_image(self):
+        if self._is_modelDirty:
+            self._check_save()
+
         dialog = QFileDialog()
 
         dir_name = dialog.getOpenFileName(None, 'Load Image', self.config.image_dir, 'Images (*.png;*.jpg)')
@@ -124,8 +137,8 @@ class Main(QMainWindow):
                     widget.setText(value)
 
     def _load_ui(self):
-        # ui_file = QFile('litho_gen.ui')
-        ui_file = QFile(':ui/litho_gen.ui')
+        ui_file = QFile('litho_gen.ui')
+        # ui_file = QFile(':ui/litho_gen.ui')
         ui_file.open(QFile.ReadOnly)
         self._main = uic.loadUi(ui_file, self)
         ui_file.close()
@@ -134,8 +147,8 @@ class Main(QMainWindow):
 
         self.show()
 
-        # style_sheet = QFile('litho_gen.qss')
-        style_sheet = QFile(':ui/litho_gen.qss')
+        style_sheet = QFile('litho_gen.qss')
+        # style_sheet = QFile(':ui/litho_gen.qss')
         if style_sheet.exists():
             style_sheet.open(QFile.ReadOnly)
             style = str(style_sheet.readAll(), 'utf-8')
@@ -179,6 +192,7 @@ class Main(QMainWindow):
         self._mesh_plotter.view_xy()
 
         in_progress = False
+        self._is_modelDirty = True
 
     def _save_model(self):
         if self._mesh is not None:
@@ -188,6 +202,7 @@ class Main(QMainWindow):
             dir_name = dialog.getSaveFileName(None, 'Save Model', filename, 'Model Files (*.stl)')
             if dir_name[0]:
                 self._mesh.save(dir_name[0])
+                self._is_modelDirty = False
 
     def _save_specs(self):
         dialog = QFileDialog()
@@ -231,6 +246,20 @@ class Main(QMainWindow):
         if self.chkMirror.isChecked(): img = ImageOps.mirror(img)
 
         self.lblImage.setPixmap(QPixmap.fromImage(ImageQt(img)))
+
+    def _switch_units(self):
+        if self.btnMetric.isChecked():
+            factor = 25.4
+        else:
+            factor = 1 / 25.4
+
+        for obj in self.findChildren(QLabel):
+            buddy = obj.buddy()
+            if buddy is not None:
+                buddy_name = buddy.objectName()
+                if not buddy_name.startswith('num'):
+                    value = round(float(buddy.text()) * factor * 100) / 100
+                    buddy.setText(str(value))
 
 
 if __name__ == "__main__":
