@@ -13,7 +13,7 @@ from PIL import Image, ImageOps
 from PIL.ImageQt import ImageQt
 import pyvistaqt as pvqt
 
-from common import DotDict
+from common import *
 from Lithophane import Lithophane
 
 import litho_gen_rc
@@ -90,11 +90,12 @@ class Main(QMainWindow):
         for obj in self.findChildren(QSlider):
             self.props[obj.objectName()] = obj.value()
 
+        factor = 1.0 if self.btnMetric.isChecked() else MM_PER_INCH
         for obj in self.findChildren(QLabel):
             buddy = obj.buddy()
             if buddy is not None:
                 buddy_name = buddy.objectName()
-                self.props[buddy_name] = int(buddy.text()) if buddy_name.startswith('num') else float(buddy.text())
+                self.props[buddy_name] = int(buddy.text()) if buddy_name.startswith('num') else float(buddy.text()) * factor
 
     def _load_config(self):
         self.config.image_dir = '/'
@@ -249,9 +250,9 @@ class Main(QMainWindow):
 
     def _switch_units(self):
         if self.btnMetric.isChecked():
-            factor = 25.4
+            factor = MM_PER_INCH
         else:
-            factor = 1 / 25.4
+            factor = 1 / MM_PER_INCH
 
         for obj in self.findChildren(QLabel):
             buddy = obj.buddy()
