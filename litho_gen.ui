@@ -52,6 +52,9 @@
             <height>45</height>
            </size>
           </property>
+          <property name="toolTip">
+           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Select units for size and heights.  This will convert existing values but model file is always output in millimeters.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          </property>
           <property name="title">
            <string>Units</string>
           </property>
@@ -68,7 +71,7 @@
             </rect>
            </property>
            <property name="text">
-            <string>Metric</string>
+            <string>millimeters</string>
            </property>
            <property name="checked">
             <bool>true</bool>
@@ -84,7 +87,7 @@
             </rect>
            </property>
            <property name="text">
-            <string>Imperial</string>
+            <string>inches</string>
            </property>
           </widget>
          </widget>
@@ -117,8 +120,11 @@
               <height>16777215</height>
              </size>
             </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Maximum size of the longest dimension. e.g. if input is 200 x 100 and &lt;span style=&quot; font-style:italic;&quot;&gt;Max Size&lt;/span&gt; is 100, output will be 100 x 50.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
-             <string>Max Size (mm)</string>
+             <string>Max Size</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -167,8 +173,11 @@
               <height>16777215</height>
              </size>
             </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Maximum height (depth) of generated features. Darkest pixels will have 0 height and lightest will have &lt;span style=&quot; font-style:italic;&quot;&gt;Max Z Height&lt;/span&gt;.  (opposite if &lt;span style=&quot; font-style:italic;&quot;&gt;Invert Image&lt;/span&gt; is selected)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
-             <string>Max Z Height (mm)</string>
+             <string>Max Z Height</string>
             </property>
             <property name="buddy">
              <cstring>maxHeight</cstring>
@@ -213,6 +222,9 @@
               <width>120</width>
               <height>16777215</height>
              </size>
+            </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The number of vectors to generate for each pixel.  Higher values generate more detail but increase calculation time.  5 is a good starting point, anything over 10 is probably counter-productive.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
              <string>Pixels/Vertex</string>
@@ -261,6 +273,9 @@
               <height>16777215</height>
              </size>
             </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Height of the base to be added below the generated Lithophane.  This is usually only used if the result is going to be 3D printed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
              <string>Base Height</string>
             </property>
@@ -308,8 +323,11 @@
               <height>16777215</height>
              </size>
             </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The minimum or starting height of the generated model.  Usually only necessary if model is to be 3D printed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
-             <string>Minimum Height (mm)</string>
+             <string>Minimum Height</string>
             </property>
             <property name="buddy">
              <cstring>minHeight</cstring>
@@ -343,6 +361,9 @@
           </item>
           <item row="8" column="0">
            <widget class="QCheckBox" name="chkInvert">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Create a negative image. i.e. switch light and dark values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
              <string>Invert Image</string>
             </property>
@@ -350,6 +371,9 @@
           </item>
           <item row="8" column="1">
            <widget class="QCheckBox" name="chkMirror">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Flip the image from left to right about the vertical axis.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
              <string>Mirror Image</string>
             </property>
@@ -399,6 +423,9 @@
           </item>
           <item row="12" column="0">
            <widget class="QPushButton" name="btnGenerate">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Generate the 3D model.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
              <string>Generate Lithophane Model</string>
             </property>
@@ -406,6 +433,9 @@
           </item>
           <item row="9" column="0" colspan="2">
            <widget class="QCheckBox" name="chkSmooth">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Apply smoothing to the generated result.  Use the slider to specify an amount between &lt;span style=&quot; font-style:italic;&quot;&gt;Min&lt;/span&gt; and &lt;span style=&quot; font-style:italic;&quot;&gt;Max&lt;/span&gt;.  The larger the value the more detail will be lost.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
             <property name="text">
              <string>Smoothing</string>
             </property>

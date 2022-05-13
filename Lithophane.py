@@ -2,7 +2,7 @@ import numpy as np
 import pyvista as pv
 from PIL import ImageOps
 
-_THRESHOLD = 1000000
+FACE_THRESHOLD = 1000000
 
 
 class Lithophane:
@@ -14,8 +14,8 @@ class Lithophane:
         mesh = pcd.delaunay_2d(progress_bar=True)
         if base is not None: mesh += base
 
-        if mesh.n_faces > _THRESHOLD:
-            mesh = mesh.decimate_pro(1.0 - (_THRESHOLD / mesh.n_faces), progress_bar=True)
+        if mesh.n_faces > FACE_THRESHOLD:
+            mesh = mesh.decimate_pro(1.0 - (FACE_THRESHOLD / mesh.n_faces), progress_bar=True)
 
         return mesh
 
