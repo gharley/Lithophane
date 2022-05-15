@@ -138,8 +138,8 @@ class Main(QMainWindow):
                     widget.setText(value)
 
     def _load_ui(self):
-        ui_file = QFile('litho_gen.ui')
-        # ui_file = QFile(':ui/litho_gen.ui')
+        # ui_file = QFile('litho_gen.ui')
+        ui_file = QFile(':ui/litho_gen.ui')
         ui_file.open(QFile.ReadOnly)
         self._main = uic.loadUi(ui_file, self)
         ui_file.close()
@@ -148,8 +148,8 @@ class Main(QMainWindow):
 
         self.show()
 
-        style_sheet = QFile('litho_gen.qss')
-        # style_sheet = QFile(':ui/litho_gen.qss')
+        # style_sheet = QFile('litho_gen.qss')
+        style_sheet = QFile(':ui/litho_gen.qss')
         if style_sheet.exists():
             style_sheet.open(QFile.ReadOnly)
             style = str(style_sheet.readAll(), 'utf-8')
