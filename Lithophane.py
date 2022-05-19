@@ -51,7 +51,12 @@ class Lithophane:
 
         mesh.flip_normals()
         mesh = self.scale_to_final_size(mesh, props)
-        mesh = mesh.fill_holes(1000, progress_bar=True)
+
+        try:
+            temp = mesh.fill_holes(1000, progress_bar=True)
+            mesh = temp
+        except():
+            pass
 
         return mesh
 
