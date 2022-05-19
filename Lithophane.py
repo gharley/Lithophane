@@ -67,8 +67,12 @@ class Lithophane:
         gray = ImageOps.scale(ImageOps.grayscale(img), scale, True)
         if props.chkInvert: gray = ImageOps.invert(gray)
         if props.chkMirror: gray = ImageOps.mirror(gray)
+
         data = gray.getdata()
+        data -= np.min(data)  # Adjust to lowest value in case not zero
+        gray.putdata(data)
         actual_max_height = np.max(data)
+
         heights = np.zeros([gray.height + 2, gray.width + 2])
         heights[1:-1, 1:-1] = gray / actual_max_height * props.maxHeight
 
