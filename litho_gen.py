@@ -86,6 +86,7 @@ class Main(QMainWindow):
         self.btnMetric.toggled.connect(self._switch_units)
 
     def _init_properties(self):
+        self.props.statusBar = self.statusBar()
         for obj in self.findChildren(QCheckBox):
             self.props[obj.objectName()] = obj.isChecked()
 

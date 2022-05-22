@@ -10,17 +10,20 @@ class Lithophane:
         pass
 
     @staticmethod
-    def create_mesh_from_point_cloud(pcd, base):
+    def create_mesh_from_point_cloud(pcd, base, props):
+        props.statusBar.showMessage('Generating Mesh')
         mesh = pcd.delaunay_2d(progress_bar=True)
         if base is not None: mesh += base
 
         if mesh.n_faces > FACE_THRESHOLD:
+            props.statusBar.showMessage('Decimating Mesh')
             mesh = mesh.decimate_pro(1.0 - (FACE_THRESHOLD / mesh.n_faces), progress_bar=True)
 
         return mesh
 
     @staticmethod
     def create_point_cloud_from_vertices(vertices, props):
+        props.statusBar.showMessage('Generating Point Cloud')
         pcd = pv.PolyData(vertices)
 
         bounds = pcd.bounds
@@ -44,8 +47,10 @@ class Lithophane:
         vertices = self.prepare_image(props)
         pcd, base = self.create_point_cloud_from_vertices(vertices, props)
 
-        mesh = self.create_mesh_from_point_cloud(pcd, base)
+        mesh = self.create_mesh_from_point_cloud(pcd, base, props)
+
         if props.chkSmooth:
+            props.statusBar.showMessage('Smoothing Mesh')
             n_iter = props.sldSmooth * 20
             mesh = mesh.smooth(n_iter, progress_bar=True)
 
@@ -53,11 +58,13 @@ class Lithophane:
         mesh = self.scale_to_final_size(mesh, props)
 
         try:
+            props.statusBar.showMessage('Filling Holes')
             temp = mesh.fill_holes(1000, progress_bar=True)
             mesh = temp
         except():
             pass
 
+        props.statusBar.showMessage('')
         return mesh
 
     def prepare_image(self, props):
@@ -88,4 +95,5 @@ class Lithophane:
             [0, 0, scale, 0],
             [0, 0, 0, 1]])
 
+        props.statusBar.showMessage('Scaling To Final Size')
         return mesh.transform(matrix, progress_bar=True)
