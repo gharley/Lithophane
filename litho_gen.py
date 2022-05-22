@@ -9,6 +9,8 @@ from PyQt5.QtCore import QFile, Qt
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QLineEdit, QCheckBox, QFileDialog, QWidget, QSlider
 
+import vtkmodules.all  # DO NOT REMOVE, required for pyinstaller
+
 from PIL import Image, ImageOps
 from PIL.ImageQt import ImageQt
 import pyvistaqt as pvqt
