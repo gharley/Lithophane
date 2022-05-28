@@ -70,7 +70,8 @@ class Lithophane:
     def prepare_image(self, props):
         img = props.img
 
-        scale = props.maxSize * props.numSamples / max(img.width, img.height)
+        divisor = img.width if props.btnWidth else img.height
+        scale = props.maxSize * props.numSamples / divisor
         gray = ImageOps.scale(ImageOps.grayscale(img), scale, True)
         if props.chkInvert: gray = ImageOps.invert(gray)
         if props.chkMirror: gray = ImageOps.mirror(gray)
@@ -88,7 +89,8 @@ class Lithophane:
     @staticmethod
     def scale_to_final_size(mesh, props):
         bound = mesh.bounds
-        scale = props.maxSize / max(bound[1], bound[3])
+        divisor = bound[1] if props.btnWidth else bound[3]
+        scale = props.maxSize / divisor
         matrix = np.array([
             [scale, 0, 0, 0],
             [0, scale, 0, 0],

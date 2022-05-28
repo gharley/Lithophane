@@ -8,6 +8,9 @@ QLabel, QGroupBox{
     min-width: 10em;
 }
 
+#lblMaxSize{
+    min-width: 0;
+}
 #lblImage, #lblMin, #lblMax{
     border: none;
 }

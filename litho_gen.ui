@@ -100,65 +100,6 @@
           <property name="verticalSpacing">
            <number>4</number>
           </property>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="minimumSize">
-             <size>
-              <width>120</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>120</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Maximum size of the longest dimension. e.g. if input is 200 x 100 and &lt;span style=&quot; font-style:italic;&quot;&gt;Max Size&lt;/span&gt; is 100, output will be 100 x 50.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-            <property name="text">
-             <string>Max Size</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-            </property>
-            <property name="buddy">
-             <cstring>maxSize</cstring>
-            </property>
-            <property name="class" stdset="0">
-             <string>input</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLineEdit" name="maxSize">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>100</width>
-              <height>16777215</height>
-             </size>
-            </property>
-            <property name="text">
-             <string>100</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-            </property>
-           </widget>
-          </item>
           <item row="4" column="0">
            <widget class="QLabel" name="label_2">
             <property name="minimumSize">
@@ -379,6 +320,16 @@
             </property>
            </widget>
           </item>
+          <item row="9" column="0" colspan="2">
+           <widget class="QCheckBox" name="chkSmooth">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Apply smoothing to the generated result.  Use the slider to specify an amount between &lt;span style=&quot; font-style:italic;&quot;&gt;Min&lt;/span&gt; and &lt;span style=&quot; font-style:italic;&quot;&gt;Max&lt;/span&gt;.  The larger the value the more detail will be lost.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Smoothing</string>
+            </property>
+           </widget>
+          </item>
           <item row="10" column="0" colspan="2">
            <widget class="QSlider" name="sldSmooth">
             <property name="minimumSize">
@@ -431,14 +382,129 @@
             </property>
            </widget>
           </item>
-          <item row="9" column="0" colspan="2">
-           <widget class="QCheckBox" name="chkSmooth">
+          <item row="3" column="0" colspan="2">
+           <widget class="QGroupBox" name="groupBox_2">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>50</height>
+             </size>
+            </property>
             <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Apply smoothing to the generated result.  Use the slider to specify an amount between &lt;span style=&quot; font-style:italic;&quot;&gt;Min&lt;/span&gt; and &lt;span style=&quot; font-style:italic;&quot;&gt;Max&lt;/span&gt;.  The larger the value the more detail will be lost.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Maximum size of the specified dimension, i.e. width or height as selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
-            <property name="text">
-             <string>Smoothing</string>
+            <property name="title">
+             <string>Max Size</string>
             </property>
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            </property>
+            <property name="flat">
+             <bool>true</bool>
+            </property>
+            <widget class="QRadioButton" name="btnWidth">
+             <property name="geometry">
+              <rect>
+               <x>120</x>
+               <y>20</y>
+               <width>80</width>
+               <height>18</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>width</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+            <widget class="QRadioButton" name="btnHeight">
+             <property name="geometry">
+              <rect>
+               <x>170</x>
+               <y>20</y>
+               <width>80</width>
+               <height>18</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>height</string>
+             </property>
+            </widget>
+            <widget class="QLabel" name="lblMaxSize">
+             <property name="geometry">
+              <rect>
+               <x>11</x>
+               <y>10</y>
+               <width>90</width>
+               <height>0</height>
+              </rect>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>90</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Max Size</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+             </property>
+             <property name="buddy">
+              <cstring>maxSize</cstring>
+             </property>
+             <property name="class" stdset="0">
+              <string>input</string>
+             </property>
+            </widget>
+            <widget class="QLineEdit" name="maxSize">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>20</y>
+               <width>100</width>
+               <height>22</height>
+              </rect>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>100</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>100</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
            </widget>
           </item>
          </layout>
@@ -517,7 +583,7 @@
      <x>0</x>
      <y>0</y>
      <width>1024</width>
-     <height>22</height>
+     <height>17</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -594,7 +660,6 @@
  <tabstops>
   <tabstop>btnMetric</tabstop>
   <tabstop>btnImperial</tabstop>
-  <tabstop>maxSize</tabstop>
   <tabstop>maxHeight</tabstop>
   <tabstop>numSamples</tabstop>
   <tabstop>baseHeight</tabstop>

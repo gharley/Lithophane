@@ -93,6 +93,8 @@ class Main(QMainWindow):
         for obj in self.findChildren(QSlider):
             self.props[obj.objectName()] = obj.value()
 
+        self.props.btnWidth = self.btnWidth.isChecked()
+
         factor = 1.0 if self.btnMetric.isChecked() else MM_PER_INCH
         for obj in self.findChildren(QLabel):
             buddy = obj.buddy()
