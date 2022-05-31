@@ -193,8 +193,8 @@ class Main(QMainWindow):
         self._mesh = litho.generate_mesh(self.props)
 
         display_mesh = self._mesh.copy()
-        self._mesh_id = self._mesh_plotter.add_mesh(display_mesh, color=[1.0, 1.0, 0.0], render_points_as_spheres=True, pbr=False, metallic=1.0)
-        self._mesh_plotter.show_axes()
+        self._mesh_id = self._mesh_plotter.add_mesh(display_mesh, color=[1.0, 1.0, 0.0], render_points_as_spheres=True)
+        self._mesh_plotter.add_camera_orientation_widget()
         self._mesh_plotter.view_xy()
 
         in_progress = False
