@@ -6,7 +6,7 @@ import time
 
 from PyQt5 import uic
 from PyQt5.QtCore import QFile, Qt
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QLineEdit, QCheckBox, QFileDialog, QWidget, QSlider
 
 import vtkmodules.all  # DO NOT REMOVE, required for pyinstaller
@@ -55,8 +55,7 @@ class Main(QMainWindow):
         self._mesh_plotter.window_size = [geo.width() * dpi_ratio, geo.height() * dpi_ratio]
 
     def closeEvent(self, event) -> None:
-        if self._is_modelDirty:
-            self._check_save()
+        self._check_save()
 
         with open('config.json', 'w') as out_file:
             json.dump(self.config, out_file)
@@ -68,7 +67,8 @@ class Main(QMainWindow):
             self._mesh_plotter.window_size = [geo.width() * dpi_ratio, geo.height() * dpi_ratio]
 
     def _check_save(self):
-        pass
+        if self._is_modelDirty:
+            pass
 
     def _init_connections(self):
         self.actionOpen.triggered.connect(self._load_image)
@@ -121,6 +121,7 @@ class Main(QMainWindow):
             self.props.img = Image.open(dir_name[0])
             self._set_pixmap()
             self._set_control_states()
+            self._set_app_title()
 
     def _load_specs(self):
         dialog = QFileDialog()
@@ -144,25 +145,26 @@ class Main(QMainWindow):
                     widget.setText(value)
 
     def _load_ui(self):
-        ui_file = QFile('litho_gen.ui')
-        # ui_file = QFile(':ui/litho_gen.ui')
+        # ui_file = QFile('litho_gen.ui')
+        ui_file = QFile(':ui/litho_gen.ui')
         ui_file.open(QFile.ReadOnly)
         self._main = uic.loadUi(ui_file, self)
         ui_file.close()
 
         self._init_connections()
 
+        self._set_app_title()
         self.show()
 
-        style_sheet = QFile('litho_gen.qss')
-        # style_sheet = QFile(':ui/litho_gen.qss')
+        # style_sheet = QFile('litho_gen.qss')
+        style_sheet = QFile(':ui/litho_gen.qss')
         if style_sheet.exists():
             style_sheet.open(QFile.ReadOnly)
             style = str(style_sheet.readAll(), 'utf-8')
             self.setStyleSheet(style)
             style_sheet.close()
-        #
-        # self.setWindowIcon(QIcon(':images/end_all.svg'))
+
+        self.setWindowIcon(QIcon(':ui/AppIcon.ico'))
 
     mesh_id = None
 
@@ -200,6 +202,8 @@ class Main(QMainWindow):
 
         in_progress = False
         self._is_modelDirty = True
+        self._set_control_states()
+        self._set_app_title()
 
     def _save_model(self):
         if self._mesh is not None:
@@ -210,6 +214,7 @@ class Main(QMainWindow):
             if dir_name[0]:
                 self._mesh.save(dir_name[0])
                 self._is_modelDirty = False
+                self._set_app_title()
 
     def _save_specs(self):
         dialog = QFileDialog()
@@ -231,6 +236,17 @@ class Main(QMainWindow):
             with open(dir_name[0], 'w') as out_file:
                 json.dump(specs, out_file)
 
+    APP_NAME = 'Lithophane Generator'
+
+    def _set_app_title(self):
+        title = self.APP_NAME
+        if self.props.img is not None:
+            title += ' - ' + self.config.image_dir
+        if self._is_modelDirty:
+            title += '*'
+
+        self.setWindowTitle(title)
+
     def _set_control_states(self):
         if self._mesh_plotter is not None:
             if self.chkGrid.isChecked():
@@ -244,9 +260,14 @@ class Main(QMainWindow):
         self.lblMax.setEnabled(enable)
 
         enable = self.props.img is not None
-        self.actionSave.setEnabled(enable)
         self.actionGenerate.setEnabled(enable)
         self.btnGenerate.setEnabled(enable)
+        self.chkInvert.setEnabled(enable)
+        self.chkMirror.setEnabled(enable)
+        self.chkSmooth.setEnabled(enable)
+        self.chkGrid.setEnabled(enable)
+
+        self.actionSave.setEnabled(self._mesh is not None)
 
     def _set_pixmap(self):
         if self.props.img is None: return
