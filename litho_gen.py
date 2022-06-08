@@ -82,6 +82,7 @@ class Main(QMainWindow):
         self.chkInvert.stateChanged.connect(self._set_pixmap)
         self.chkMirror.stateChanged.connect(self._set_pixmap)
         self.chkSmooth.stateChanged.connect(self._set_control_states)
+        self.chkGrid.stateChanged.connect(self._set_control_states)
 
         self.btnMetric.toggled.connect(self._switch_units)
 
@@ -143,8 +144,8 @@ class Main(QMainWindow):
                     widget.setText(value)
 
     def _load_ui(self):
-        # ui_file = QFile('litho_gen.ui')
-        ui_file = QFile(':ui/litho_gen.ui')
+        ui_file = QFile('litho_gen.ui')
+        # ui_file = QFile(':ui/litho_gen.ui')
         ui_file.open(QFile.ReadOnly)
         self._main = uic.loadUi(ui_file, self)
         ui_file.close()
@@ -153,8 +154,8 @@ class Main(QMainWindow):
 
         self.show()
 
-        # style_sheet = QFile('litho_gen.qss')
-        style_sheet = QFile(':ui/litho_gen.qss')
+        style_sheet = QFile('litho_gen.qss')
+        # style_sheet = QFile(':ui/litho_gen.qss')
         if style_sheet.exists():
             style_sheet.open(QFile.ReadOnly)
             style = str(style_sheet.readAll(), 'utf-8')
@@ -231,6 +232,12 @@ class Main(QMainWindow):
                 json.dump(specs, out_file)
 
     def _set_control_states(self):
+        if self._mesh_plotter is not None:
+            if self.chkGrid.isChecked():
+                self._mesh_plotter.show_grid()
+            else:
+                self._mesh_plotter.remove_bounds_axes()
+
         enable = self.chkSmooth.isChecked()
         self.sldSmooth.setEnabled(enable)
         self.lblMin.setEnabled(enable)
