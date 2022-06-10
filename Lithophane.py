@@ -49,11 +49,6 @@ class Lithophane:
 
         mesh = self.create_mesh_from_point_cloud(pcd, base, props)
 
-        if props.chkSmooth:
-            props.statusBar.showMessage('Smoothing Mesh')
-            n_iter = props.sldSmooth * 20
-            mesh = mesh.smooth(n_iter, progress_bar=True)
-
         mesh.flip_normals()
         mesh = self.scale_to_final_size(mesh, props)
 
@@ -63,6 +58,11 @@ class Lithophane:
             mesh = temp
         except():
             pass
+
+        if props.chkSmooth:
+            props.statusBar.showMessage('Smoothing Mesh')
+            n_iter = props.sldSmooth * 20
+            mesh = mesh.smooth(n_iter, progress_bar=True)
 
         props.statusBar.showMessage('')
         return mesh

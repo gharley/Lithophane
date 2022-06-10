@@ -38,3 +38,11 @@ may require some additional configuration. Make sure you have the required libra
 
 ## Usage
 
+Usage is fairly straight-forward. 
+ - Open an image file. `File/Load Image`
+ - Select the **Units** you wish to use. (model files are always saved in millimeters) 
+ - Set the desired **Output Size** and specify **width** or **height**. (the dimension not selected will be scaled)
+ - Set **Max Z Height**. This determines the height of the model.
+ - Set **Vectors/Pixel**. Higher numbers increase detail but take longer to generate. The default (5) is a good 
+place to start. More than 10 is probably overkill (and may cause the app to crash).
+ - 

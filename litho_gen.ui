@@ -118,7 +118,7 @@
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Maximum size of the specified dimension, i.e. width or height as selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="title">
-             <string>Max Size</string>
+             <string>Output Size</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -293,7 +293,7 @@
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The number of vectors to generate for each pixel.  Higher values generate more detail but increase calculation time.  5 is a good starting point, anything over 10 is probably counter-productive.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
-             <string>Pixels/Vertex</string>
+             <string>Vectors/Pixel</string>
             </property>
             <property name="buddy">
              <cstring>numSamples</cstring>
