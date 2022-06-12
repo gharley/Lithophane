@@ -45,4 +45,8 @@ Usage is fairly straight-forward.
  - Set **Max Z Height**. This determines the height of the model.
  - Set **Vectors/Pixel**. Higher numbers increase detail but take longer to generate. The default (5) is a good 
 place to start. More than 10 is probably overkill (and may cause the app to crash).
- - 
+ - Set **Base Height** and **Minimum Height** if needed. These are mostly for 3D printing.
+
+At this point you may click on **Generate Lithophane Model** to see the results. If needed you may invert or mirror 
+the image or select a smoothing value first. Smoothing will act accordingly but adds to calculation time and could 
+remove too much detail.
