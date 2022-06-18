@@ -7,7 +7,7 @@ import time
 from PyQt5 import uic
 from PyQt5.QtCore import QFile, Qt
 from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QLineEdit, QCheckBox, QFileDialog, QWidget, QSlider
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QLineEdit, QCheckBox, QFileDialog, QWidget, QSlider, QMessageBox
 
 import vtkmodules.all  # DO NOT REMOVE, required for pyinstaller
 
@@ -55,10 +55,14 @@ class Main(QMainWindow):
         self._mesh_plotter.window_size = [geo.width() * dpi_ratio, geo.height() * dpi_ratio]
 
     def closeEvent(self, event) -> None:
-        self._check_save()
-
-        with open('config.json', 'w') as out_file:
-            json.dump(self.config, out_file)
+        btn = self._check_save()
+        if btn == QMessageBox.Save:
+            self._save_model()
+        elif btn == QMessageBox.Cancel:
+            event.ignore()
+        else:
+            with open('config.json', 'w') as out_file:
+                json.dump(self.config, out_file)
 
     def resizeEvent(self, event) -> None:
         if self._mesh_plotter is not None:
@@ -68,7 +72,15 @@ class Main(QMainWindow):
 
     def _check_save(self):
         if self._is_modelDirty:
-            pass
+            msg_box = QMessageBox()
+            msg_box.setText('The generated model has not been saved.')
+            msg_box.setInformativeText('Do you wish to save the model.')
+            msg_box.setStandardButtons(QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel)
+            msg_box.setDefaultButton(QMessageBox.Save)
+
+            return msg_box.exec_()
+
+        return QMessageBox.Discard
 
     def _init_connections(self):
         self.actionOpen.triggered.connect(self._load_image)

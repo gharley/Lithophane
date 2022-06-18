@@ -613,7 +613,7 @@
    </widget>
    <widget class="QMenu" name="menuImage">
     <property name="title">
-     <string>Image</string>
+     <string>Model</string>
     </property>
     <addaction name="actionGenerate"/>
    </widget>
