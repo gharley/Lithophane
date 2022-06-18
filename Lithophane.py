@@ -17,7 +17,10 @@ class Lithophane:
 
         if mesh.n_faces > FACE_THRESHOLD:
             props.statusBar.showMessage('Decimating Mesh')
-            mesh = mesh.decimate_pro(1.0 - (FACE_THRESHOLD / mesh.n_faces), progress_bar=True)
+            try:
+                mesh = mesh.decimate_pro(1.0 - (FACE_THRESHOLD / mesh.n_faces), progress_bar=True)
+            except():
+                props.statusBar.showMessage('Error decimating mesh')
 
         return mesh
 
@@ -53,16 +56,19 @@ class Lithophane:
         mesh = self.scale_to_final_size(mesh, props)
 
         try:
+            if props.chkSmooth:
+                props.statusBar.showMessage('Smoothing Mesh')
+                n_iter = props.sldSmooth * 20
+                mesh = mesh.smooth(n_iter, progress_bar=True)
+        except():
+            props.statusBar.showMessage('Error smoothing mesh')
+
+        try:
             props.statusBar.showMessage('Filling Holes')
             temp = mesh.fill_holes(1000, progress_bar=True)
             mesh = temp
         except():
-            pass
-
-        if props.chkSmooth:
-            props.statusBar.showMessage('Smoothing Mesh')
-            n_iter = props.sldSmooth * 20
-            mesh = mesh.smooth(n_iter, progress_bar=True)
+            props.statusBar.showMessage('Error filling holes')
 
         props.statusBar.showMessage('')
         return mesh
