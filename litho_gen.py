@@ -7,7 +7,9 @@ import time
 from PyQt5 import uic
 from PyQt5.QtCore import QFile, Qt
 from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QLineEdit, QCheckBox, QFileDialog, QWidget, QSlider, QMessageBox
+from PyQt5.QtWidgets import \
+    QApplication, QMainWindow, QLabel, QLineEdit, QCheckBox, \
+    QFileDialog, QWidget, QRadioButton, QSlider, QMessageBox
 
 import vtkmodules.all  # DO NOT REMOVE, required for pyinstaller
 
@@ -236,6 +238,9 @@ class Main(QMainWindow):
             self.config.spec_dir = dir_name[0]
 
             specs = DotDict()
+            for child in self.findChildren(QRadioButton):
+                specs[child.objectName()] = child.isChecked()
+
             for child in self.findChildren(QLineEdit):
                 specs[child.objectName()] = child.text()
 
