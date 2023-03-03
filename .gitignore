@@ -1,3 +1,5 @@
 config.json
 /build/
 *.spec
+litho_gen
+litho_gen.exe

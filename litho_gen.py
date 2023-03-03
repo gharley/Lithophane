@@ -253,7 +253,7 @@ class Main(QMainWindow):
             with open(dir_name[0], 'w') as out_file:
                 json.dump(specs, out_file)
 
-    APP_NAME = 'Lithophane Generator'
+    APP_NAME = 'Lithophane Generator 0.1.0'
 
     def _set_app_title(self):
         title = self.APP_NAME
