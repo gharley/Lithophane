@@ -15,11 +15,11 @@ class Lithophane:
         mesh = pcd.delaunay_2d(progress_bar=True)
         if base is not None: mesh += base
 
-        if mesh.n_faces > FACE_THRESHOLD:
+        if mesh.n_faces_strict > FACE_THRESHOLD:
             props.statusBar.showMessage('Decimating Mesh')
             try:
-                mesh = mesh.decimate_pro(1.0 - (FACE_THRESHOLD / mesh.n_faces), progress_bar=True)
-            except():
+                mesh = mesh.decimate_pro(1.0 - (FACE_THRESHOLD / mesh.n_faces_strict), progress_bar=True)
+            except ():
                 props.statusBar.showMessage('Error decimating mesh')
 
         return mesh
@@ -60,14 +60,14 @@ class Lithophane:
                 props.statusBar.showMessage('Smoothing Mesh')
                 n_iter = props.sldSmooth * 20
                 mesh = mesh.smooth(n_iter, progress_bar=True)
-        except():
+        except ():
             props.statusBar.showMessage('Error smoothing mesh')
 
         try:
             props.statusBar.showMessage('Filling Holes')
             temp = mesh.fill_holes(1000, progress_bar=True)
             mesh = temp
-        except():
+        except ():
             props.statusBar.showMessage('Error filling holes')
 
         props.statusBar.showMessage('')

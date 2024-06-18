@@ -4,10 +4,10 @@ import json
 import threading
 import time
 
-from PyQt5 import uic
-from PyQt5.QtCore import QFile, Qt
-from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtWidgets import \
+from PyQt6 import uic
+from PyQt6.QtCore import QFile, Qt
+from PyQt6.QtGui import QPixmap, QIcon
+from PyQt6.QtWidgets import \
     QApplication, QMainWindow, QLabel, QLineEdit, QCheckBox, \
     QFileDialog, QWidget, QRadioButton, QSlider, QMessageBox
 
