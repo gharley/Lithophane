@@ -22,13 +22,6 @@ from Lithophane import Lithophane
 
 import litho_gen_rc
 
-# Handle high-res monitors
-if hasattr(Qt, 'AA_EnableHighDpiScaling'):
-    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
-
-if hasattr(Qt, 'AA_UseHighDpiPixmaps'):
-    QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
-
 
 class Main(QMainWindow):
     _heights = None
@@ -296,6 +289,7 @@ class Main(QMainWindow):
         if self.chkInvert.isChecked(): img = ImageOps.invert(img)
         if self.chkMirror.isChecked(): img = ImageOps.mirror(img)
 
+        # noinspection PyTypeChecker
         self.lblImage.setPixmap(QPixmap.fromImage(ImageQt(img)))
 
     def _switch_units(self):
