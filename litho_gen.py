@@ -150,8 +150,8 @@ class Main(QMainWindow):
                     widget.setText(value)
 
     def _load_ui(self):
-        ui_file = QFile('litho_gen.ui')
-        # ui_file = QFile(':ui/litho_gen.ui')
+        # ui_file = QFile('litho_gen.ui')
+        ui_file = QFile(':ui/litho_gen.ui')
         ui_file.open(QFile.ReadOnly)
         self._main = uic.loadUi(ui_file, self)
         ui_file.close()
