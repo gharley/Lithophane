@@ -45,9 +45,7 @@ class Main(QMainWindow):
         self._mesh_plotter = pvqt.QtInteractor(self.plotWidget)
         self._mesh_plotter.show()
 
-        geo = self.plotWidget.geometry()
-        dpi_ratio = int(app.devicePixelRatio())
-        self._mesh_plotter.window_size = [geo.width() * dpi_ratio, geo.height() * dpi_ratio]
+        self.resizeEvent(None)
 
     def closeEvent(self, event) -> None:
         btn = self._check_save()
@@ -62,8 +60,8 @@ class Main(QMainWindow):
     def resizeEvent(self, event) -> None:
         if self._mesh_plotter is not None:
             geo = self.plotWidget.geometry()
-            dpi_ratio = int(app.devicePixelRatio())
-            self._mesh_plotter.window_size = [geo.width() * dpi_ratio, geo.height() * dpi_ratio]
+            dpi_ratio = app.devicePixelRatio()
+            self._mesh_plotter.window_size = [int(geo.width() * dpi_ratio), int(geo.height() * dpi_ratio)]
 
     def _check_save(self):
         if self._is_modelDirty:
@@ -152,8 +150,8 @@ class Main(QMainWindow):
                     widget.setText(value)
 
     def _load_ui(self):
-        # ui_file = QFile('litho_gen.ui')
-        ui_file = QFile(':ui/litho_gen.ui')
+        ui_file = QFile('litho_gen.ui')
+        # ui_file = QFile(':ui/litho_gen.ui')
         ui_file.open(QFile.ReadOnly)
         self._main = uic.loadUi(ui_file, self)
         ui_file.close()
