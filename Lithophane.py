@@ -10,10 +10,9 @@ class Lithophane:
         pass
 
     @staticmethod
-    def create_mesh_from_point_cloud(pcd, base, props):
+    def create_mesh_from_point_cloud(pcd, props):
         props.statusBar.showMessage('Generating Mesh')
         mesh = pcd.delaunay_2d(progress_bar=True)
-        if base is not None: mesh += base
 
         if mesh.n_faces_strict > FACE_THRESHOLD:
             props.statusBar.showMessage('Decimating Mesh')
@@ -29,14 +28,7 @@ class Lithophane:
         props.statusBar.showMessage('Generating Point Cloud')
         pcd = pv.PolyData(vertices)
 
-        bounds = pcd.bounds
-        x_max = bounds[1]
-        y_max = bounds[3]
-        height = (props.minHeight + props.baseHeight) * props.numSamples
-        base = pv.Cube(center=(x_max / 2, y_max / 2, -height / 2), x_length=x_max, y_length=y_max, z_length=height)
-        base = base.triangulate()
-
-        return pcd, base
+        return pcd
 
     @staticmethod
     def _get_vertices(heights, props):
@@ -48,9 +40,9 @@ class Lithophane:
 
     def generate_mesh(self, props):
         vertices = self.prepare_image(props)
-        pcd, base = self.create_point_cloud_from_vertices(vertices, props)
+        pcd = self.create_point_cloud_from_vertices(vertices, props)
 
-        mesh = self.create_mesh_from_point_cloud(pcd, base, props)
+        mesh = self.create_mesh_from_point_cloud(pcd, props)
 
         mesh.flip_normals()
         mesh = self.scale_to_final_size(mesh, props)
@@ -70,8 +62,15 @@ class Lithophane:
         except ():
             props.statusBar.showMessage('Error filling holes')
 
+        bounds = mesh.bounds
+        x_max = bounds[1]
+        y_max = bounds[3]
+        height = props.baseHeight
+        base = pv.Cube(center=(x_max / 2, y_max / 2, -height / 2), x_length=x_max, y_length=y_max, z_length=height)
+        base = base.triangulate()
+
         props.statusBar.showMessage('')
-        return mesh
+        return mesh + base
 
     def prepare_image(self, props):
         img = props.img
