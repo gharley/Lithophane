@@ -43,8 +43,6 @@ class Lithophane:
         pcd = self.create_point_cloud_from_vertices(vertices, props)
 
         mesh = self.create_mesh_from_point_cloud(pcd, props)
-
-        mesh.flip_normals()
         mesh = self.scale_to_final_size(mesh, props)
 
         try:
