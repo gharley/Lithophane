@@ -67,8 +67,10 @@ class Lithophane:
         base = pv.Cube(center=(x_max / 2, y_max / 2, -height / 2), x_length=x_max, y_length=y_max, z_length=height)
         base = base.triangulate()
 
+        mesh = mesh + base
         props.statusBar.showMessage('')
-        return mesh + base
+
+        return mesh
 
     def prepare_image(self, props):
         img = props.img
